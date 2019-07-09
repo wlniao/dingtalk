@@ -25,6 +25,7 @@ namespace Wlniao.Dingtalk
                 { "getuserauth_bycode", GetAuthUserByCodeEncode },
                 { "getuserinfo_bycode", GetAuthinfoByCodeEncode },
                 { "get_user", GetUserEncode },
+                { "get_by_mobile", GetUserEncode },
             };
             DecoderMap = new Dictionary<string, ResponseDecoder>() {
                 { "gettoken", GetTokenDecode },
@@ -32,6 +33,7 @@ namespace Wlniao.Dingtalk
                 { "getuserauth_bycode", GetAuthUserByCodeDecode },
                 { "getuserinfo_bycode", GetAuthinfoByCodeDecode },
                 { "get_user", GetUserDecode },
+                { "get_by_mobile", GetUserDecode },
             };
         }
 
@@ -210,6 +212,41 @@ namespace Wlniao.Dingtalk
             try
             {
                 ctx.Response = JsonConvert.DeserializeObject<Response.GetUserResponse>(ctx.HttpResponseString);
+            }
+            catch
+            {
+                ctx.Response = new Error() { errmsg = "InvalidJsonString" };
+            }
+        }
+        #endregion
+
+        #region GetUserIdByMobile
+        private void GetUserIdByMobileEncode(Context ctx)
+        {
+            var req = ctx.Request as Request.GetUserIdByMobileRequest;
+            if (req != null)
+            {
+                if (string.IsNullOrEmpty(req.mobile))
+                {
+                    ctx.Response = new Error() { errmsg = "missing mobile" };
+                    return;
+                }
+                if (string.IsNullOrEmpty(req.access_token))
+                {
+                    ctx.Response = new Error() { errmsg = "missing access_token" };
+                    return;
+                }
+                ctx.Method = System.Net.Http.HttpMethod.Get;
+                ctx.RequestPath = "/user/get_by_mobile"
+                    + "?access_token=" + req.access_token
+                    + "&mobile=" + req.mobile;
+            }
+        }
+        private void GetUserIdByMobileDecode(Context ctx)
+        {
+            try
+            {
+                ctx.Response = JsonConvert.DeserializeObject<Response.GetUserIdByMobileResponse>(ctx.HttpResponseString);
             }
             catch
             {

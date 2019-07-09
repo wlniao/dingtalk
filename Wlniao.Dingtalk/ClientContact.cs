@@ -9,12 +9,12 @@ namespace Wlniao.Dingtalk
     /// <summary>
     /// 通讯录访问
     /// </summary>
-    public class ContactClient : Client
+    public class ClientContact : Client
     {
         /// <summary>
         /// 
         /// </summary>
-        public ContactClient()
+        public ClientContact()
         {
             this.CorpId = CfgCorpId;
             this.AppKey = CfgAppKey;
@@ -26,7 +26,7 @@ namespace Wlniao.Dingtalk
         /// <summary>
         /// 
         /// </summary>
-        public ContactClient(String AppKey, String AppSecret)
+        public ClientContact(String AppKey, String AppSecret)
         {
             this.AppKey = AppKey;
             this.AppSecret = AppSecret;
@@ -37,7 +37,7 @@ namespace Wlniao.Dingtalk
         /// <summary>
         /// 
         /// </summary>
-        public ContactClient(String CorpId, String AppKey, String AppSecret, String SuiteTicket)
+        public ClientContact(String CorpId, String AppKey, String AppSecret, String SuiteTicket)
         {
             this.CorpId = CorpId;
             this.AppKey = AppKey;

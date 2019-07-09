@@ -191,7 +191,7 @@ namespace Wlniao.Dingtalk
         /// </summary>
         public void SetToken(String token)
         {
-            var key = AppKey + CorpId;
+            var key = "key" + AppKey + CorpId;
             if (!tokens.ContainsKey(key))
             {
                 tokens.Add(key, new TokenCache());
@@ -204,7 +204,7 @@ namespace Wlniao.Dingtalk
         /// </summary>
         public int StatusCode()
         {
-            var key = AppKey + CorpId;
+            var key = "key" + AppKey + CorpId;
             if (!tokens.ContainsKey(key))
             {
                 tokens.Add(key, new TokenCache());
@@ -230,7 +230,7 @@ namespace Wlniao.Dingtalk
         /// </summary>
         public string GetToken(Boolean renew = false)
         {
-            var key = AppKey + CorpId;
+            var key = "key" + AppKey + CorpId;
             if (!tokens.ContainsKey(key))
             {
                 tokens.Add(key, new TokenCache());
@@ -268,7 +268,7 @@ namespace Wlniao.Dingtalk
         /// </summary>
         public string GetCorpToken(Boolean renew = false)
         {
-            var key = AppKey + CorpId;
+            var key = "key" + AppKey + CorpId;
             if (!tokens.ContainsKey(key))
             {
                 tokens.Add(key, new TokenCache());
@@ -407,5 +407,36 @@ namespace Wlniao.Dingtalk
             return rlt;
         }
         #endregion 
+
+        //#region GetUserIdByMobile 根据手机号获取员工userid
+        ///// <根据手机号获取员工userid>
+        ///// 获取用户详情
+        ///// </summary>
+        ///// <param name="mobile">员工手机号</param>
+        ///// <returns></returns>
+        //public ApiResult<String> GetUserIdByMobile(String mobile)
+        //{
+        //    var res = GetResponseFromAsyncTask(CallAsync<GetUserIdByMobileRequest, GetUserIdByMobileResponse>("get_by_mobile", new GetUserIdByMobileRequest()
+        //    {
+        //        mobile = mobile,
+        //        access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken(),
+        //    }));
+        //    var rlt = new ApiResult<String> { message = res.message };
+        //    if (res.success && res.data != null)
+        //    {
+        //        if (res.data.errcode != 0)
+        //        {
+        //            rlt.code = res.data.errcode.ToString();
+        //            rlt.message = res.data.errmsg;
+        //        }
+        //        else if (res.data != null && !string.IsNullOrEmpty(res.data.userid))
+        //        {
+        //            rlt.data = res.data.userid;
+        //            rlt.success = true;
+        //        }
+        //    }
+        //    return rlt;
+        //}
+        //#endregion 
     }
 }
