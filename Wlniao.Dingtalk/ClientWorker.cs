@@ -55,15 +55,19 @@ namespace Wlniao.Dingtalk
         /// 发起待办
         /// </summary>
         /// <param name="process_code"></param>
-        /// <param name="title"></param>
-        /// <param name="url"></param>
-        /// <param name="formItemList"></param>
-        /// <param name="time"></param>
+        /// <param name="originator_user_id"></param>
+        /// <param name="dept_id"></param>
+        /// <param name="approvers"></param>
+        /// <param name="approvers_v2"></param>
+        /// <param name="cc_list"></param>
+        /// <param name="cc_position"></param>
+        /// <param name="form_component_values"></param>
+        /// <param name="agent_id"></param>
         /// <returns></returns>
         public ApiResult<String> ProcessInstanceCreate(String process_code, String originator_user_id, String dept_id, String approvers, List<Models.ProcessInstanceApproverVo> approvers_v2
             , String cc_list, String cc_position, List<Models.FormComponentVo> form_component_values, String agent_id = "")
         {
-            var res = GetResponseFromAsyncTask(CallAsync<ProcessInstanceCreateRequest, ProcessInstanceCreateResponse>("workrecord_add", new ProcessInstanceCreateRequest()
+            var res = GetResponseFromAsyncTask(CallAsync<ProcessInstanceCreateRequest, ProcessInstanceCreateResponse>("processinstance_create", new ProcessInstanceCreateRequest()
             {
                 process_code = process_code,
                 originator_user_id = originator_user_id,
@@ -123,10 +127,50 @@ namespace Wlniao.Dingtalk
                     rlt.code = res.data.errcode.ToString();
                     rlt.message = res.data.errmsg;
                 }
-                else if (res.data != null && !string.IsNullOrEmpty(res.data.record_id))
+                else if (!string.IsNullOrEmpty(res.data.record_id))
                 {
                     rlt.data = res.data.record_id;
                     rlt.success = true;
+                }
+            }
+            return rlt;
+        }
+        #endregion
+
+        #region WorkRecordUpdate 更新待办
+        /// <summary>
+        /// 更新待办
+        /// </summary>
+        /// <param name="userid"></param>
+        /// <param name="record_id"></param>
+        /// <returns></returns>
+        public ApiResult<String> WorkRecordUpdate(String userid, String record_id)
+        {
+            var res = GetResponseFromAsyncTask(CallAsync<WorkRecordUpdateRequest, WorkRecordUpdateResponse>("workrecord_update", new WorkRecordUpdateRequest()
+            {
+                userid = userid,
+                record_id = record_id,
+                access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken()
+            }, System.Net.Http.HttpMethod.Get));
+            var rlt = new ApiResult<String> { message = res.message };
+            if (res.success && res.data != null)
+            {
+                if (res.data.errcode != 0)
+                {
+                    rlt.code = res.data.errcode.ToString();
+                    rlt.message = res.data.errmsg;
+                }
+                else if (res.data.result)
+                {
+                    rlt.data = "true";
+                    rlt.success = true;
+                    res.message = "更新成功";
+                }
+                else
+                {
+                    rlt.data = "false";
+                    rlt.success = true;
+                    res.message = "更新失败";
                 }
             }
             return rlt;

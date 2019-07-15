@@ -15,10 +15,12 @@ namespace Wlniao.Dingtalk
         public WorkerHandler(PipelineHandler handler) : base(handler)
         {
             EncoderMap.Add("workrecord_add", WorkRecordAddEncode);
-            EncoderMap.Add("workrecord_add", ProcessInstanceCreateEncode);
+            EncoderMap.Add("workrecord_update", WorkRecordUpdateEncode);
+            EncoderMap.Add("processinstance_create", ProcessInstanceCreateEncode);
 
             DecoderMap.Add("workrecord_add", WorkRecordAddDecode);
-            DecoderMap.Add("workrecord_add", ProcessInstanceCreateDecode);
+            DecoderMap.Add("workrecord_update", WorkRecordUpdateDecode);
+            DecoderMap.Add("processinstance_create", ProcessInstanceCreateDecode);
         }
 
         #region ProcessInstanceCreate
@@ -65,7 +67,7 @@ namespace Wlniao.Dingtalk
                     req.form_component_values,
                     req.agent_id
                 });
-                ctx.RequestPath = "/topapi/workrecord/add"
+                ctx.RequestPath = "/topapi/processinstance/create"
                     + "?access_token=" + req.access_token;
             }
         }
@@ -131,6 +133,50 @@ namespace Wlniao.Dingtalk
             try
             {
                 ctx.Response = JsonConvert.DeserializeObject<Response.WorkRecordAddResponse>(ctx.HttpResponseString);
+            }
+            catch
+            {
+                ctx.Response = new Error() { errmsg = "InvalidJsonString" };
+            }
+        }
+        #endregion
+
+        #region WorkRecordUpdate
+        private void WorkRecordUpdateEncode(Context ctx)
+        {
+            var req = ctx.Request as Request.WorkRecordUpdateRequest;
+            if (req != null)
+            {
+                if (string.IsNullOrEmpty(req.userid))
+                {
+                    ctx.Response = new Error() { errmsg = "missing userid" };
+                    return;
+                }
+                if (string.IsNullOrEmpty(req.record_id))
+                {
+                    ctx.Response = new Error() { errmsg = "missing record_id" };
+                    return;
+                }
+                if (string.IsNullOrEmpty(req.access_token))
+                {
+                    ctx.Response = new Error() { errmsg = "missing access_token" };
+                    return;
+                }
+                ctx.Method = System.Net.Http.HttpMethod.Post;
+                ctx.HttpRequestString = JsonConvert.SerializeObject(new
+                {
+                    req.userid,
+                    req.record_id
+                });
+                ctx.RequestPath = "/topapi/workrecord/update"
+                    + "?access_token=" + req.access_token;
+            }
+        }
+        private void WorkRecordUpdateDecode(Context ctx)
+        {
+            try
+            {
+                ctx.Response = JsonConvert.DeserializeObject<Response.WorkRecordUpdateResponse>(ctx.HttpResponseString);
             }
             catch
             {
