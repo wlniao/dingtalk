@@ -118,6 +118,45 @@ namespace Wlniao.Dingtalk
             }
             return rlt;
         }
+        #endregion
+
+
+        #region DepartmentGet 获取部门详情
+        /// <summary>
+        /// 获取部门详情
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ApiResult<Models.Department> DepartmentGet(String id)
+        {
+            var res = GetResponseFromAsyncTask(CallAsync<DepartmentGetRequest, DepartmentGetResponse>("department_get", new DepartmentGetRequest()
+            {
+                id = id,
+                access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken()
+            }, System.Net.Http.HttpMethod.Get));
+            var rlt = new ApiResult<Models.Department> { message = res.message };
+            if (res.success && res.data != null)
+            {
+                if (res.data.errcode != 0)
+                {
+                    rlt.code = res.data.errcode.ToString();
+                    rlt.message = res.data.errmsg;
+                }
+                else if (res.data != null)
+                {
+                    rlt.data = new Models.Department
+                    {
+                        id = res.data.id,
+                        name = res.data.name,
+                        order = res.data.order,
+                        parentid = res.data.parentid,
+                        sourceIdentifier = res.data.sourceIdentifier
+                    };
+                    rlt.success = true;
+                }
+            }
+            return rlt;
+        }
         #endregion 
 
         #region DepartmentCreate 创建部门

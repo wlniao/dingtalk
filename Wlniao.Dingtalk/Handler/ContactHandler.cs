@@ -16,6 +16,7 @@ namespace Wlniao.Dingtalk
         {
             EncoderMap.Add("user_create", UserCreateEncode);
             DecoderMap.Add("user_create", UserCreateDecode);
+            EncoderMap.Add("department_get", DepartmentGetEncode);
             EncoderMap.Add("department_list", DepartmentListEncode);
             EncoderMap.Add("department_create", DepartmentCreateEncode);
             EncoderMap.Add("get_org_user_count", GetUserCountEncode);
@@ -23,6 +24,7 @@ namespace Wlniao.Dingtalk
             EncoderMap.Add("get_dept_nember_list", GetDeptMemberListEncode);
             EncoderMap.Add("get_dept_nember_simple", GetDeptMemberSimpleEncode);
 
+            DecoderMap.Add("department_get", DepartmentGetDecode);
             DecoderMap.Add("department_list", DepartmentListDecode);
             DecoderMap.Add("department_create", DepartmentCreateDecode);
             DecoderMap.Add("get_org_user_count", GetUserCountDecode);
@@ -63,6 +65,37 @@ namespace Wlniao.Dingtalk
             try
             {
                 ctx.Response = JsonConvert.DeserializeObject<Response.UserCreateResponse>(ctx.HttpResponseString);
+            }
+            catch
+            {
+                ctx.Response = new Error() { errmsg = "InvalidJsonString" };
+            }
+        }
+        #endregion
+
+        #region DepartmentGet
+        private void DepartmentGetEncode(Context ctx)
+        {
+            var req = ctx.Request as Request.DepartmentGetRequest;
+            if (req != null)
+            {
+                if (string.IsNullOrEmpty(req.access_token))
+                {
+                    ctx.Response = new Error() { errmsg = "missing access_token" };
+                    return;
+                }
+                ctx.Method = System.Net.Http.HttpMethod.Get;
+                ctx.RequestPath = "/department/get"
+                    + "?access_token=" + req.access_token
+                    + "&id=" + req.id
+                    + "&lang=" + req.lang;
+            }
+        }
+        private void DepartmentGetDecode(Context ctx)
+        {
+            try
+            {
+                ctx.Response = JsonConvert.DeserializeObject<Response.DepartmentGetResponse>(ctx.HttpResponseString);
             }
             catch
             {

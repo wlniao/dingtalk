@@ -254,10 +254,10 @@ namespace Wlniao.Dingtalk
                     tokens[key].code = rlt.data.errcode;
                     tokens[key].info = rlt.data.errmsg;
                 }
-            }
 #if DEBUG
-            Console.WriteLine(tokens[key].token);
+                Console.WriteLine("Dingtalk.GetToken:" + tokens[key].token);
 #endif
+            }
             return tokens[key].token;
         }
         #endregion 

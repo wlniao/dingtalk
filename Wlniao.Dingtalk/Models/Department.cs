@@ -9,15 +9,19 @@ namespace Wlniao.Dingtalk.Models
         /// <summary>
         /// 部门id
         /// </summary>
-        public int id { get; set; }
+        public string id { get; set; }
         /// <summary>
         /// 部门名称
         /// </summary>
         public string name { get; set; }
         /// <summary>
-        /// 父部门id，根部门为1
+        /// 在父部门中的排序值，order值小的排序靠前
         /// </summary>
-        public int parentid { get; set; }
+        public string order { get; set; }
+        /// <summary>
+        /// 父部门id
+        /// </summary>
+        public string parentid { get; set; }
         /// <summary>
         /// 是否同步创建一个关联此部门的企业群，true表示是，false表示不是
         /// </summary>
