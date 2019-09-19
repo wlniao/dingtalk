@@ -9,65 +9,61 @@ namespace Wlniao.Dingtalk
     /// <summary>
     /// 消息通知
     /// </summary>
-    public class ClientMessage : Client
+    public class ClientCspace : Client
     {
         /// <summary>
         /// 
         /// </summary>
-        public ClientMessage()
+        public ClientCspace()
         {
             this.CorpId = CfgCorpId;
             this.AppKey = CfgAppKey;
             this.AppSecret = CfgAppSecret;
             handler = new ApiHandler();
-            handler = new MessageHandler(handler);
+            handler = new CspaceHandler(handler);
             handler = new RetryHandler(handler);
         }
         /// <summary>
         /// 
         /// </summary>
-        public ClientMessage(String AppKey, String AppSecret)
+        public ClientCspace(String AppKey, String AppSecret)
         {
             this.AppKey = AppKey;
             this.AppSecret = AppSecret;
             handler = new ApiHandler();
-            handler = new MessageHandler(handler);
+            handler = new CspaceHandler(handler);
             handler = new RetryHandler(handler);
         }
         /// <summary>
         /// 
         /// </summary>
-        public ClientMessage(String CorpId, String AppKey, String AppSecret, String SuiteTicket)
+        public ClientCspace(String CorpId, String AppKey, String AppSecret, String SuiteTicket)
         {
             this.CorpId = CorpId;
             this.AppKey = AppKey;
             this.AppSecret = AppSecret;
             this.SuiteTicket = SuiteTicket;
             handler = new ApiHandler();
-            handler = new MessageHandler(handler);
+            handler = new CspaceHandler(handler);
             handler = new RetryHandler(handler);
         }
 
 
-        #region SendCorpMessage 发送工作通知消息
+
+        #region SingleUpload 单步上传文件
         /// <summary>
-        /// 发送工作通知消息
+        /// 单步上传文件
         /// </summary>
-        /// <param name="msg"></param>
         /// <param name="agent_id"></param>
-        /// <param name="userid_list"></param>
-        /// <param name="dept_id_list"></param>
-        /// <param name="to_all_user"></param>
+        /// <param name="media"></param>
         /// <returns></returns>
-        public ApiResult<String> SendCorpMessage(Object msg, String agent_id, String userid_list, String dept_id_list = "", Boolean to_all_user = false)
+        public ApiResult<String> SingleUpload(String agent_id, Models.FileItem media)
         {
-            var res = GetResponseFromAsyncTask(CallAsync<SendCorpMessageRequest, SendCorpMessageResponse>("send_corpmessage", new SendCorpMessageRequest()
+            var res = GetResponseFromAsyncTask(CallAsync<SingleUploadRequest, SingleUploadResponse>("single_upload", new SingleUploadRequest()
             {
-                msg = msg,
                 agent_id = agent_id,
-                userid_list = userid_list,
-                dept_id_list = dept_id_list,
-                to_all_user = to_all_user,
+                file_size = media.Bytes.Length,
+                media = media,
                 access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken()
             }, System.Net.Http.HttpMethod.Get));
             var rlt = new ApiResult<String> { message = res.message };
@@ -78,9 +74,9 @@ namespace Wlniao.Dingtalk
                     rlt.code = res.data.errcode.ToString();
                     rlt.message = res.data.errmsg;
                 }
-                else if (!string.IsNullOrEmpty(res.data.task_id))
+                else if (!string.IsNullOrEmpty(res.data.media_id))
                 {
-                    rlt.data = res.data.task_id;
+                    rlt.data = res.data.media_id;
                     rlt.success = true;
                 }
             }
@@ -88,22 +84,21 @@ namespace Wlniao.Dingtalk
         }
         #endregion
 
-
-        #region SendCorpMessage 发送普通消息
+        #region AddToSingleChat 发送钉盘文件给指定用户
         /// <summary>
-        /// 发送工作通知消息
+        /// 发送钉盘文件给指定用户
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="sender"></param>
-        /// <param name="cid"></param>
+        /// <param name="type"></param>
+        /// <param name="media"></param>
         /// <returns></returns>
-        public ApiResult<String> SendToMessage(Object msg, String sender, String cid)
+        public ApiResult<String> AddToSingleChat(String userid, String agent_id, String media_id, String file_name)
         {
-            var res = GetResponseFromAsyncTask(CallAsync<SendToMessageRequest, SendToMessageResponse>("send_tomessage", new SendToMessageRequest()
+            var res = GetResponseFromAsyncTask(CallAsync<AddToSingleChatRequest, AddToSingleChatResponse>("add_to_single_chat", new AddToSingleChatRequest()
             {
-                cid = cid,
-                msg = msg,
-                sender = sender,
+                userid = userid,
+                agent_id = agent_id,
+                media_id = media_id,
+                file_name = file_name,
                 access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken()
             }, System.Net.Http.HttpMethod.Get));
             var rlt = new ApiResult<String> { message = res.message };
@@ -114,15 +109,16 @@ namespace Wlniao.Dingtalk
                     rlt.code = res.data.errcode.ToString();
                     rlt.message = res.data.errmsg;
                 }
-                else if (!string.IsNullOrEmpty(res.data.receiver))
+                else
                 {
-                    rlt.data = res.data.receiver;
+                    rlt.data = "";
                     rlt.success = true;
                 }
             }
             return rlt;
         }
         #endregion
+
 
 
     }

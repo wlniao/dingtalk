@@ -184,7 +184,15 @@ namespace Wlniao.Dingtalk
             public String token = "";
             public DateTime past = DateTime.MinValue;
         }
+        private class TicketCache
+        {
+            public int code = 0;
+            public String info = "";
+            public String ticket = "";
+            public DateTime past = DateTime.MinValue;
+        }
         private static Dictionary<String, TokenCache> tokens = new Dictionary<string, TokenCache>();
+        private static Dictionary<String, TicketCache> tickets = new Dictionary<string, TicketCache>();
 
         /// <summary>
         /// 获取access_token
@@ -231,10 +239,14 @@ namespace Wlniao.Dingtalk
         public string GetToken(Boolean renew = false)
         {
             var key = "key" + AppKey + CorpId;
-            if (!tokens.ContainsKey(key))
+            try
             {
-                tokens.Add(key, new TokenCache());
+                if (!tokens.ContainsKey(key))
+                {
+                    tokens.Add(key, new TokenCache());
+                }
             }
+            catch { }
             if (renew || tokens[key].past < DateTime.Now)
             {
                 var rlt = GetResponseFromAsyncTask(CallAsync<GetTokenRequest, GetTokenResponse>("gettoken", new GetTokenRequest()
@@ -297,6 +309,44 @@ namespace Wlniao.Dingtalk
             return tokens[key].token;
         }
         #endregion
+
+        #region GetTicket 获取jsapi_ticket
+        /// <summary>
+        /// 获取jsapi_ticket
+        /// </summary>
+        public string GetTicket(Boolean renew = false)
+        {
+            var key = "key" + AppKey + CorpId;
+            try
+            {
+                if (!tickets.ContainsKey(key))
+                {
+                    tickets.Add(key, new TicketCache());
+                }
+            }
+            catch { }
+            if (renew || tickets[key].past < DateTime.Now)
+            {
+                var rlt = GetResponseFromAsyncTask(CallAsync<GetTicketRequest, GetTicketResponse>("getticket", new GetTicketRequest()
+                {
+                    access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken()
+                }, System.Net.Http.HttpMethod.Get));
+                if (rlt.success && rlt.data != null && rlt.data.errcode == 0 && !string.IsNullOrEmpty(rlt.data.ticket))
+                {
+                    tickets[key].code = 0;
+                    tickets[key].info = "";
+                    tickets[key].ticket = rlt.data.ticket;
+                    tickets[key].past = DateTime.Now.AddSeconds(3600);
+                }
+                else
+                {
+                    tickets[key].code = rlt.data.errcode;
+                    tickets[key].info = rlt.data.errmsg;
+                }
+            }
+            return tickets[key].ticket;
+        }
+        #endregion 
 
         #region GetAuthUserByCode 获取免登授权码用户详情
         /// <summary>
@@ -406,7 +456,7 @@ namespace Wlniao.Dingtalk
             }
             return rlt;
         }
-        #endregion 
+        #endregion
 
         //#region GetUserIdByMobile 根据手机号获取员工userid
         ///// <根据手机号获取员工userid>
@@ -438,5 +488,89 @@ namespace Wlniao.Dingtalk
         //    return rlt;
         //}
         //#endregion 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="textParams"></param>
+        /// <param name="fileParams"></param>
+        /// <returns></returns>
+        public static byte[] DoPost(IDictionary<string, string> textParams, IDictionary<string, Models.FileItem> fileParams,out String contentType)
+        {
+            if (fileParams == null || fileParams.Count == 0)
+            {
+                contentType = "application/x-www-form-urlencoded;charset=utf-8";
+                var query = new System.Text.StringBuilder();
+                var hasParam = false;
+                foreach (KeyValuePair<string, string> kv in textParams)
+                {
+                    string name = kv.Key;
+                    string value = kv.Value;
+                    // 忽略参数名或参数值为空的参数
+                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(value))
+                    {
+                        if (hasParam)
+                        {
+                            query.Append("&");
+                        }
+
+                        query.Append(name);
+                        query.Append("=");
+                        query.Append(System.Web.HttpUtility.UrlEncode(value, Encoding.UTF8));
+                        hasParam = true;
+                    }
+                }
+
+                return Encoding.UTF8.GetBytes(query.ToString());
+            }
+            else
+            {
+                var total = 0;
+                var maxlength = ((textParams == null || textParams.Count == 0) ? 0 : textParams.Values.Sum(a => a.Length))
+                    + (fileParams.Values.Sum(a => a.Bytes.Length) + textParams.Count * 50) + 1000;
+                var revBuffer = new byte[maxlength];
+                var reqStream = new System.IO.MemoryStream();
+                var boundary = DateTime.Now.Ticks.ToString("X"); // 随机分隔线
+                contentType = "multipart/form-data;charset=utf-8;boundary=" + boundary;
+
+                byte[] itemBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "\r\n");
+                byte[] endBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
+
+                if (textParams != null && textParams.Count > 0)
+                {
+                    // 组装文本请求参数
+                    string textTemplate = "Content-Disposition:form-data;name=\"{0}\"\r\nContent-Type:text/plain\r\n\r\n{1}";
+                    foreach (KeyValuePair<string, string> kv in textParams)
+                    {
+                        var itemBytes = Encoding.UTF8.GetBytes(string.Format(textTemplate, kv.Key, kv.Value));
+                        Buffer.BlockCopy(itemBoundaryBytes, 0, revBuffer, total, itemBoundaryBytes.Length);
+                        total += itemBoundaryBytes.Length;
+                        Buffer.BlockCopy(itemBytes, 0, revBuffer, total, itemBytes.Length);
+                        total += itemBytes.Length;
+                    }
+                }
+
+                // 组装文件请求参数
+                string fileTemplate = "Content-Disposition:form-data;name=\"{0}\";filename=\"{1}\"\r\nContent-Type:{2}\r\n\r\n";
+                foreach (var kv in fileParams)
+                {
+                    var itemBytes = Encoding.UTF8.GetBytes(string.Format(fileTemplate, kv.Key, kv.Value.FileName, kv.Value.MimeType));
+
+                    Buffer.BlockCopy(itemBoundaryBytes, 0, revBuffer, total, itemBoundaryBytes.Length);
+                    total += itemBoundaryBytes.Length;
+                    Buffer.BlockCopy(itemBytes, 0, revBuffer, total, itemBytes.Length);
+                    total += itemBytes.Length;
+                    Buffer.BlockCopy(kv.Value.Bytes, 0, revBuffer, total, kv.Value.Bytes.Length);
+                    total += kv.Value.Bytes.Length;
+                }
+                Buffer.BlockCopy(endBoundaryBytes, 0, revBuffer, total, endBoundaryBytes.Length);
+                total += endBoundaryBytes.Length;
+                return revBuffer.Take(total).ToArray();
+            }
+        }
+
+
     }
 }

@@ -21,6 +21,7 @@ namespace Wlniao.Dingtalk
         {
             EncoderMap = new Dictionary<string, ResponseEncoder>() {
                 { "gettoken", GetTokenEncode },
+                { "getticket", GetTicketEncode },
                 { "getcorptoken", GetCorpTokenEncode },
                 { "getuserauth_bycode", GetAuthUserByCodeEncode },
                 { "getuserinfo_bycode", GetAuthinfoByCodeEncode },
@@ -29,6 +30,7 @@ namespace Wlniao.Dingtalk
             };
             DecoderMap = new Dictionary<string, ResponseDecoder>() {
                 { "gettoken", GetTokenDecode },
+                { "getticket", GetTicketDecode },
                 { "getcorptoken", GetCorpTokenDecode },
                 { "getuserauth_bycode", GetAuthUserByCodeDecode },
                 { "getuserinfo_bycode", GetAuthinfoByCodeDecode },
@@ -80,6 +82,30 @@ namespace Wlniao.Dingtalk
             try
             {
                 ctx.Response = JsonConvert.DeserializeObject<Response.GetTokenResponse>(ctx.HttpResponseString);
+            }
+            catch
+            {
+                ctx.Response = new Error() { errmsg = "InvalidJsonString" };
+            }
+        }
+        #endregion
+
+        #region GetTicket
+        private void GetTicketEncode(Context ctx)
+        {
+            var req = ctx.Request as Request.GetTicketRequest;
+            if (req != null)
+            {
+                ctx.Method = System.Net.Http.HttpMethod.Get;
+                ctx.RequestPath = "/get_jsapi_ticket"
+                    + "?access_token=" + req.access_token;
+            }
+        }
+        private void GetTicketDecode(Context ctx)
+        {
+            try
+            {
+                ctx.Response = JsonConvert.DeserializeObject<Response.GetTicketResponse>(ctx.HttpResponseString);
             }
             catch
             {

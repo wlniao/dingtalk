@@ -14,10 +14,61 @@ namespace Wlniao.Dingtalk
         /// </summary>
         public MessageHandler(PipelineHandler handler) : base(handler)
         {
+            EncoderMap.Add("send_tomessage", SendToMessageEncode);
             EncoderMap.Add("send_corpmessage", SendCorpMessageEncode);
 
+            DecoderMap.Add("send_tomessage", SendToMessageDecode);
             DecoderMap.Add("send_corpmessage", SendCorpMessageDecode);
         }
+
+        #region SendToMessage
+        private void SendToMessageEncode(Context ctx)
+        {
+            var req = ctx.Request as Request.SendToMessageRequest;
+            if (req != null)
+            {
+                if (req.msg == null)
+                {
+                    ctx.Response = new Error() { errmsg = "missing msg" };
+                    return;
+                }
+                if (string.IsNullOrEmpty(req.cid))
+                {
+                    ctx.Response = new Error() { errmsg = "missing cid" };
+                    return;
+                }
+                if (string.IsNullOrEmpty(req.sender))
+                {
+                    ctx.Response = new Error() { errmsg = "missing sender" };
+                    return;
+                }
+                if (string.IsNullOrEmpty(req.access_token))
+                {
+                    ctx.Response = new Error() { errmsg = "missing access_token" };
+                    return;
+                }
+                ctx.Method = System.Net.Http.HttpMethod.Post;
+                var ht = new System.Collections.Hashtable();
+                ht.Add("msg", req.msg);
+                ht.Add("cid", req.cid);
+                ht.Add("sender", req.sender);
+                ctx.HttpRequestString = JsonConvert.SerializeObject(ht);
+                ctx.RequestPath = "/topapi/message/send_to_conversation"
+                    + "?access_token=" + req.access_token;
+            }
+        }
+        private void SendToMessageDecode(Context ctx)
+        {
+            try
+            {
+                ctx.Response = JsonConvert.DeserializeObject<Response.SendToMessageResponse>(ctx.HttpResponseString);
+            }
+            catch
+            {
+                ctx.Response = new Error() { errmsg = "InvalidJsonString" };
+            }
+        }
+        #endregion
 
         #region SendCorpMessage
         private void SendCorpMessageEncode(Context ctx)
