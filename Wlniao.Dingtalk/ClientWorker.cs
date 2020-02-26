@@ -19,6 +19,7 @@ namespace Wlniao.Dingtalk
             this.CorpId = CfgCorpId;
             this.AppKey = CfgAppKey;
             this.AppSecret = CfgAppSecret;
+            this.ApiServer = CfgApiServer;
             handler = new ApiHandler();
             handler = new WorkerHandler(handler);
             handler = new RetryHandler(handler);
@@ -26,10 +27,11 @@ namespace Wlniao.Dingtalk
         /// <summary>
         /// 
         /// </summary>
-        public ClientWorker(String AppKey, String AppSecret)
+        public ClientWorker(String AppKey, String AppSecret, String ApiServer = null)
         {
             this.AppKey = AppKey;
             this.AppSecret = AppSecret;
+            this.ApiServer = string.IsNullOrEmpty(ApiServer) ? CfgApiServer : ApiServer;
             handler = new ApiHandler();
             handler = new WorkerHandler(handler);
             handler = new RetryHandler(handler);
@@ -37,12 +39,13 @@ namespace Wlniao.Dingtalk
         /// <summary>
         /// 
         /// </summary>
-        public ClientWorker(String CorpId, String AppKey, String AppSecret, String SuiteTicket)
+        public ClientWorker(String CorpId, String AppKey, String AppSecret, String SuiteTicket, String ApiServer = null)
         {
             this.CorpId = CorpId;
             this.AppKey = AppKey;
             this.AppSecret = AppSecret;
             this.SuiteTicket = SuiteTicket;
+            this.ApiServer = string.IsNullOrEmpty(ApiServer) ? CfgApiServer : ApiServer;
             handler = new ApiHandler();
             handler = new WorkerHandler(handler);
             handler = new RetryHandler(handler);
