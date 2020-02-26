@@ -13,8 +13,9 @@ namespace Wlniao.Dingtalk
     {
         #region 企业内部开发配置信息
         internal static string _CorpId = null;      //企业团体Id
-        internal static string _AppKey = null;     //企业内部应用Id
-        internal static string _AppSecret = null; //企业内部应用开发密钥
+        internal static string _AppKey = null;      //企业内部应用Id
+        internal static string _AppSecret = null;   //企业内部应用开发密钥
+        internal static string _ApiServer = null;   //服务器地址
         /// <summary>
         /// 企业团体Id
         /// </summary>
@@ -57,6 +58,24 @@ namespace Wlniao.Dingtalk
                 return _AppSecret;
             }
         }
+        /// <summary>
+        /// 钉钉API服务器地址
+        /// </summary>
+        public static string CfgApiServer
+        {
+            get
+            {
+                if (_ApiServer == null)
+                {
+                    _ApiServer = Config.GetSetting("DingApiServer");
+                }
+                if (string.IsNullOrEmpty(_ApiServer))
+                {
+                    _ApiServer = "https://oapi.dingtalk.com";
+                }
+                return _ApiServer;
+            }
+        }
         #endregion
 
         /// <summary>
@@ -76,6 +95,10 @@ namespace Wlniao.Dingtalk
         /// </summary>
         public string SuiteTicket { get; set; }
         /// <summary>
+        /// 钉钉API服务器地址
+        /// </summary>
+        public string ApiServer { get; set; }
+        /// <summary>
         /// 
         /// </summary>
         public Wlniao.Handler.PipelineHandler handler = null;
@@ -87,26 +110,29 @@ namespace Wlniao.Dingtalk
             this.CorpId = CfgCorpId;
             this.AppKey = CfgAppKey;
             this.AppSecret = CfgAppSecret;
+            this.ApiServer = CfgApiServer;
             handler = new Handler();
         }
         /// <summary>
         /// 
         /// </summary>
-        public Client(String AppKey, String AppSecret)
+        public Client(String AppKey, String AppSecret, String ApiServer = null)
         {
             this.AppKey = AppKey;
             this.AppSecret = AppSecret;
+            this.ApiServer = string.IsNullOrEmpty(ApiServer) ? CfgApiServer : ApiServer;
             handler = new Handler();
         }
         /// <summary>
         /// 
         /// </summary>
-        public Client(String CorpId, String AppKey, String AppSecret, String SuiteTicket)
+        public Client(String CorpId, String AppKey, String AppSecret, String SuiteTicket, String ApiServer = null)
         {
             this.CorpId = CorpId;
             this.AppKey = AppKey;
             this.AppSecret = AppSecret;
             this.SuiteTicket = SuiteTicket;
+            this.ApiServer = string.IsNullOrEmpty(ApiServer) ? CfgApiServer : ApiServer;
             handler = new Handler();
         }
 
@@ -127,7 +153,7 @@ namespace Wlniao.Dingtalk
             ctx.Method = method == null ? System.Net.Http.HttpMethod.Get : method;
             ctx.Operation = operation;
             ctx.Request = request;
-            ctx.RequestHost = "https://oapi.dingtalk.com";
+            ctx.RequestHost = ApiServer;
 
             handler.HandleBefore(ctx);
             if (ctx.Response == null)
