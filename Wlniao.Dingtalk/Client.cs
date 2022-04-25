@@ -2,22 +2,38 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Wlniao.Dingtalk.Request;
-using Wlniao.Dingtalk.Response;
+using Wlniao.Dingtalk.Auth;
 namespace Wlniao.Dingtalk
 {
     /// <summary>
-    /// 企业微信内部开发客户端
+    /// 钉钉应用客户端
     /// </summary>
     public class Client : Wlniao.Handler.IClient
     {
         #region 企业内部开发配置信息
-        internal static string _CorpId = null;      //企业团体Id
-        internal static string _AppKey = null;      //企业内部应用Id
-        internal static string _AppSecret = null;   //企业内部应用开发密钥
-        internal static string _ApiServer = null;   //服务器地址
+        internal static string _ApiHost = null;     //API接口服务器
+        internal static string _CorpId = null;      //组织机构Id
+        internal static string _AgentId = null;     //应用安装Id
+        internal static string _Token = null;       //接口通讯凭据
+        internal static string _AesKey = null;      //接口通讯密钥
+        internal static string _AppKey = null;      //应用开发标识
+        internal static string _AppSecret = null;   //应用开发密钥
         /// <summary>
-        /// 企业团体Id
+        /// 开放平台接口前缀
+        /// </summary>
+        public static string CfgApiHost
+        {
+            get
+            {
+                if (_ApiHost == null)
+                {
+                    _ApiHost = Config.GetSetting("DingHost", "https://oapi.dingtalk.com");
+                }
+                return _ApiHost;
+            }
+        }
+        /// <summary>
+        /// 组织机构Id
         /// </summary>
         public static string CfgCorpId
         {
@@ -31,7 +47,49 @@ namespace Wlniao.Dingtalk
             }
         }
         /// <summary>
-        /// 企业内部应用Id
+        /// 应用安装Id
+        /// </summary>
+        public static string CfgAgentId
+        {
+            get
+            {
+                if (_AgentId == null)
+                {
+                    _AgentId = Config.GetSetting("DingAgentId");
+                }
+                return _AgentId;
+            }
+        }
+        /// <summary>
+        /// 接口通讯凭据
+        /// </summary>
+        public static string CfgToken
+        {
+            get
+            {
+                if (_Token == null)
+                {
+                    _Token = Config.GetSetting("DingToken");
+                }
+                return _Token;
+            }
+        }
+        /// <summary>
+        /// 接口通讯密钥
+        /// </summary>
+        public static string CfgAesKey
+        {
+            get
+            {
+                if (_AesKey == null)
+                {
+                    _AesKey = Config.GetSetting("DingAesKey");
+                }
+                return _AesKey;
+            }
+        }
+        /// <summary>
+        /// 应用开发标识
         /// </summary>
         public static string CfgAppKey
         {
@@ -45,7 +103,7 @@ namespace Wlniao.Dingtalk
             }
         }
         /// <summary>
-        /// 企业内部应用开发密钥
+        /// 应用开发密钥
         /// </summary>
         public static string CfgAppSecret
         {
@@ -58,545 +116,301 @@ namespace Wlniao.Dingtalk
                 return _AppSecret;
             }
         }
-        /// <summary>
-        /// 钉钉API服务器地址
-        /// </summary>
-        public static string CfgApiServer
-        {
-            get
-            {
-                if (_ApiServer == null)
-                {
-                    _ApiServer = Config.GetSetting("DingApiServer");
-                }
-                if (string.IsNullOrEmpty(_ApiServer))
-                {
-                    _ApiServer = "https://oapi.dingtalk.com";
-                }
-                return _ApiServer;
-            }
-        }
         #endregion
 
         /// <summary>
-        /// 企业团体Id
+        /// 组织机构Id
         /// </summary>
         public string CorpId { get; set; }
         /// <summary>
-        /// 企业内部应用Id
+        /// 应用安装Id
+        /// </summary>
+        public string AgentId { get; set; }
+        /// <summary>
+        /// 接口通讯凭据
+        /// </summary>
+        public string Token { get; set; }
+        /// <summary>
+        /// 接口通讯密钥
+        /// </summary>
+        public string AesKey { get; set; }
+        /// <summary>
+        /// 应用开发标识
         /// </summary>
         public string AppKey { get; set; }
         /// <summary>
-        /// 企业内部开发密钥
+        /// 应用开发密钥
         /// </summary>
         public string AppSecret { get; set; }
         /// <summary>
-        /// 钉钉推送的SuiteTicket
+        /// 接口调用凭据
         /// </summary>
-        public string SuiteTicket { get; set; }
+        public string AppTicket { get; set; }
         /// <summary>
-        /// 钉钉API服务器地址
+        /// 接口调用凭据
         /// </summary>
-        public string ApiServer { get; set; }
+        public string AccessToken { get; set; }
         /// <summary>
-        /// 
+        /// 获取access_token
         /// </summary>
-        public Wlniao.Handler.PipelineHandler handler = null;
+        /// <returns></returns>
+        public Boolean GetAccessToken
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(AccessToken))
+                {
+                    if (string.IsNullOrEmpty(AppKey))
+                    {
+                        log.Topic("dingtalk", "\r\nAppKey not set, must add DingAppKey environment variable");
+                    }
+                    else if (string.IsNullOrEmpty(AppSecret))
+                    {
+                        log.Topic("dingtalk", "\r\nAppSecret not set, must add DingAppSecret environment variable");
+                    }
+                    else
+                    {
+                        var rlt = Handle<AccessTokenResponse>(new AccessToken(new AccessTokenRequest
+                        {
+                            appKey = AppKey,
+                            appSecret = AppSecret
+                        }));
+                        if (rlt.success)
+                        {
+                            AccessToken = rlt.data.access_token;
+                        }
+                    }
+                }
+                return string.IsNullOrEmpty(AccessToken) ? false : true;
+            }
+        }
+        /// <summary>
+        /// 获取第三方应用授权企业的accessToken
+        /// </summary>
+        /// <returns></returns>
+        public Boolean GetCorpAccessToken
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(AccessToken))
+                {
+                    if (string.IsNullOrEmpty(CorpId))
+                    {
+                        log.Topic("dingtalk", "\r\nCorpId not set, must add DingCorpId environment variable");
+                    }
+                    else if (string.IsNullOrEmpty(AppKey))
+                    {
+                        log.Topic("dingtalk", "\r\nAppKey not set, must add DingAppKey environment variable");
+                    }
+                    else if (string.IsNullOrEmpty(AppSecret))
+                    {
+                        log.Topic("dingtalk", "\r\nAppSecret not set, must add DingAppSecret environment variable");
+                    }
+                    else
+                    {
+                        var rlt = Handle<CorpAccessTokenResponse>(new CorpAccessToken(new CorpAccessTokenRequest
+                        {
+                            authCorpId = CorpId,
+                            suiteKey = AppKey,
+                            suiteSecret = AppSecret,
+                            suiteTicket = AppTicket
+                        }));
+                        if (rlt.success)
+                        {
+                            AccessToken = rlt.data.accessToken;
+                        }
+                    }
+                }
+                return string.IsNullOrEmpty(AccessToken) ? false : true;
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
         public Client()
         {
             this.CorpId = CfgCorpId;
+            this.AgentId = CfgAgentId;
+            this.AesKey = CfgAesKey;
             this.AppKey = CfgAppKey;
             this.AppSecret = CfgAppSecret;
-            this.ApiServer = CfgApiServer;
-            handler = new Handler();
         }
         /// <summary>
         /// 
         /// </summary>
-        public Client(String AppKey, String AppSecret, String ApiServer = null)
+        public Client(String accessToken)
         {
-            this.AppKey = AppKey;
-            this.AppSecret = AppSecret;
-            this.ApiServer = string.IsNullOrEmpty(ApiServer) ? CfgApiServer : ApiServer;
-            handler = new Handler();
+            this.CorpId = CfgCorpId;
+            this.AgentId = CfgAgentId;
+            this.AesKey = CfgAesKey;
+            this.AppKey = CfgAppKey;
+            this.AppSecret = CfgAppSecret;
+            this.AccessToken = accessToken;
         }
         /// <summary>
         /// 
         /// </summary>
-        public Client(String CorpId, String AppKey, String AppSecret, String SuiteTicket, String ApiServer = null)
+        public Client(String corpId, String agentId, String appSecret)
         {
-            this.CorpId = CorpId;
-            this.AppKey = AppKey;
-            this.AppSecret = AppSecret;
-            this.SuiteTicket = SuiteTicket;
-            this.ApiServer = string.IsNullOrEmpty(ApiServer) ? CfgApiServer : ApiServer;
-            handler = new Handler();
+            this.CorpId = corpId;
+            this.AgentId = agentId;
+            this.AppSecret = appSecret;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public Client(String accessToken, String corpId, String agentId, String appSecret)
+        {
+            this.CorpId = corpId;
+            this.AgentId = agentId;
+            this.AppSecret = appSecret;
+            this.AccessToken = accessToken;
         }
 
-
-        internal Task<ApiResult<TResponse>> CallAsync<TRequest, TResponse>(string operation, TRequest request, System.Net.Http.HttpMethod method = null)
-            where TResponse : Wlniao.Handler.IResponse, new()
-            where TRequest : Wlniao.Handler.IRequest
+        /// <summary>
+        /// 接口调用
+        /// </summary>
+        /// <typeparam name="TResponse"></typeparam>
+        /// <param name="ctx"></param>
+        /// <returns></returns>
+        public ApiResult<TResponse> Handle<TResponse>(Context ctx)
+            where TResponse : Wlniao.Handler.IResponse
         {
-            if (request == null)
+            if (string.IsNullOrEmpty(ctx.ApiHost))
             {
-                throw new ArgumentNullException();
+                ctx.ApiHost = CfgApiHost;
             }
-
-            var ctx = new Context();
-            ctx.CorpId = CorpId;
-            ctx.AppKey = AppKey;
-            ctx.AppSecret = AppSecret;
-            ctx.Method = method == null ? System.Net.Http.HttpMethod.Get : method;
-            ctx.Operation = operation;
-            ctx.Request = request;
-            ctx.RequestHost = ApiServer;
-
-            handler.HandleBefore(ctx);
-            if (ctx.Response == null)
-            {
-                return ctx.HttpTask.ContinueWith((t) =>
-                {
-                    handler.HandleAfter(ctx);
-                    if (ctx.Response is Error)
-                    {
-                        var err = (Error)ctx.Response;
-                        return new ApiResult<TResponse>() { success = false, message = err.errmsg, code = err.errcode.ToString() };
-                    }
-                    return new ApiResult<TResponse>() { success = true, message = "success", data = (TResponse)ctx.Response };
-                });
-            }
-            else
-            {
-                if (ctx.Response is Error)
-                {
-                    var err = (Error)ctx.Response;
-                    return Task<ApiResult<TResponse>>.Run(() =>
-                    {
-                        return new ApiResult<TResponse>() { success = false, message = err.errmsg, code = err.errcode.ToString() };
-                    });
-                }
-                else
-                {
-                    return Task<ApiResult<TResponse>>.Run(() =>
-                    {
-                        return new ApiResult<TResponse>() { success = true, message = "error", data = (TResponse)ctx.Response };
-                    });
-                }
-            }
-        }
-        internal TResponse GetResponseFromAsyncTask<TResponse>(Task<TResponse> task)
-        {
-            try
-            {
-                task.Wait();
-            }
-            catch (System.AggregateException e)
-            {
-                throw e.GetBaseException();
-            }
-
+            var task = HandleAsync<TResponse>(ctx);
+            task.Wait();
             return task.Result;
         }
-
-
-        private class TokenCache
-        {
-            public int code = 0;
-            public String info = "";
-            public String token = "";
-            public DateTime past = DateTime.MinValue;
-        }
-        private class TicketCache
-        {
-            public int code = 0;
-            public String info = "";
-            public String ticket = "";
-            public DateTime past = DateTime.MinValue;
-        }
-        private static Dictionary<String, TokenCache> tokens = new Dictionary<string, TokenCache>();
-        private static Dictionary<String, TicketCache> tickets = new Dictionary<string, TicketCache>();
-
         /// <summary>
-        /// 获取access_token
+        /// 接口调用（异步）
         /// </summary>
-        public void SetToken(String token)
-        {
-            var key = "key" + AppKey + CorpId;
-            if (!tokens.ContainsKey(key))
-            {
-                tokens.Add(key, new TokenCache());
-            }
-            tokens[key].token = token;
-            tokens[key].past = DateTime.Now.AddSeconds(3600);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public int StatusCode()
-        {
-            var key = "key" + AppKey + CorpId;
-            if (!tokens.ContainsKey(key))
-            {
-                tokens.Add(key, new TokenCache());
-            }
-            return tokens[key].code;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public string StatusInfo()
-        {
-            var key = AppKey + CorpId;
-            if (!tokens.ContainsKey(key))
-            {
-                tokens.Add(key, new TokenCache());
-            }
-            return tokens[key].info;
-        }
-
-        #region GetToken 获取access_token
-        /// <summary>
-        /// 获取access_token
-        /// </summary>
-        public string GetToken(Boolean renew = false)
-        {
-            var key = "key" + AppKey + CorpId;
-            try
-            {
-                if (!tokens.ContainsKey(key))
-                {
-                    tokens.Add(key, new TokenCache());
-                }
-            }
-            catch { }
-            if (renew || tokens[key].past < DateTime.Now)
-            {
-                var rlt = GetResponseFromAsyncTask(CallAsync<GetTokenRequest, GetTokenResponse>("gettoken", new GetTokenRequest()
-                {
-                    appkey = AppKey,
-                    appsecret = AppSecret
-                }, System.Net.Http.HttpMethod.Get));
-                if (rlt.success && rlt.data != null && rlt.data.errcode == 0 && !string.IsNullOrEmpty(rlt.data.access_token))
-                {
-                    tokens[key].code = 0;
-                    tokens[key].info = "";
-                    tokens[key].token = rlt.data.access_token;
-                    tokens[key].past = DateTime.Now.AddSeconds(3600);
-                }
-                else
-                {
-                    tokens[key].code = rlt.data.errcode;
-                    tokens[key].info = rlt.data.errmsg;
-                }
-#if DEBUG
-                Console.WriteLine("Dingtalk.GetToken:" + tokens[key].token);
-#endif
-            }
-            return tokens[key].token;
-        }
-        #endregion 
-
-        #region GetCorpToken 获取access_token
-        /// <summary>
-        /// 获取access_token
-        /// </summary>
-        public string GetCorpToken(Boolean renew = false)
-        {
-            var key = "key" + AppKey + CorpId;
-            if (!tokens.ContainsKey(key))
-            {
-                tokens.Add(key, new TokenCache());
-            }
-            if (renew || tokens[key].past < DateTime.Now)
-            {
-                var rlt = GetResponseFromAsyncTask(CallAsync<GetCorpTokenRequest, GetCorpTokenResponse>("getcorptoken", new GetCorpTokenRequest()
-                {
-                    accessKey = AppKey,
-                    auth_corpid = CorpId,
-                    suiteTicket = SuiteTicket
-                }, System.Net.Http.HttpMethod.Get));
-                if (rlt.success && rlt.data != null && rlt.data.errcode == 0 && !string.IsNullOrEmpty(rlt.data.access_token))
-                {
-                    tokens[key].code = 0;
-                    tokens[key].info = "";
-                    tokens[key].token = rlt.data.access_token;
-                    tokens[key].past = DateTime.Now.AddSeconds(3600);
-                }
-                else
-                {
-                    tokens[key].code = rlt.data.errcode;
-                    tokens[key].info = rlt.data.errmsg;
-                }
-            }
-            return tokens[key].token;
-        }
-        #endregion
-
-        #region GetTicket 获取jsapi_ticket
-        /// <summary>
-        /// 获取jsapi_ticket
-        /// </summary>
-        public string GetTicket(Boolean renew = false)
-        {
-            var key = "key" + AppKey + CorpId;
-            try
-            {
-                if (!tickets.ContainsKey(key))
-                {
-                    tickets.Add(key, new TicketCache());
-                }
-            }
-            catch { }
-            if (renew || tickets[key].past < DateTime.Now)
-            {
-                var rlt = GetResponseFromAsyncTask(CallAsync<GetTicketRequest, GetTicketResponse>("getticket", new GetTicketRequest()
-                {
-                    access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken()
-                }, System.Net.Http.HttpMethod.Get));
-                if (rlt.success && rlt.data != null && rlt.data.errcode == 0 && !string.IsNullOrEmpty(rlt.data.ticket))
-                {
-                    tickets[key].code = 0;
-                    tickets[key].info = "";
-                    tickets[key].ticket = rlt.data.ticket;
-                    tickets[key].past = DateTime.Now.AddSeconds(3600);
-                }
-                else
-                {
-                    tickets[key].code = rlt.data.errcode;
-                    tickets[key].info = rlt.data.errmsg;
-                }
-            }
-            return tickets[key].ticket;
-        }
-        #endregion 
-
-        #region GetAuthUserByCode 获取免登授权码用户详情
-        /// <summary>
-        /// 获取免登授权码用户详情
-        /// </summary>
-        public ApiResult<Models.AuthUser> GetAuthUserByCode(String code)
-        {
-            var res = GetResponseFromAsyncTask(CallAsync<GetAuthUserByCodeRequest, GetAuthUserByCodeResponse>("getuserauth_bycode", new GetAuthUserByCodeRequest()
-            {
-                code = code,
-                access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken()
-            }));
-            var rlt = new ApiResult<Models.AuthUser> { message = res.message };
-            if (res.success && res.data != null)
-            {
-                if (res.data.errcode != 0)
-                {
-                    rlt.code = res.data.errcode.ToString();
-                    rlt.message = res.data.errmsg;
-                }
-                else if (res.data != null)
-                {
-                    rlt.data = new Models.AuthUser
-                    {
-                        userid = res.data.userid,
-                        deviceId = res.data.deviceId,
-                        is_sys = res.data.is_sys,
-                        sys_level = res.data.sys_level
-                    };
-                    rlt.success = true;
-                }
-            }
-            return rlt;
-        }
-        #endregion 
-
-        #region GetAuthinfoByCode 通过临时授权码获取授权用户的个人信息
-        /// <summary>
-        /// 通过临时授权码获取授权用户的个人信息
-        /// </summary>
-        public ApiResult<Models.AuthInfo> GetAuthinfoByCode(String code, String appid, String appsecret)
-        {
-            var res = GetResponseFromAsyncTask(CallAsync<GetAuthinfoByCodeRequest, GetAuthinfoByCodeResponse>("getuserinfo_bycode", new GetAuthinfoByCodeRequest()
-            {
-                accessKey = appid,
-                appSecret = appsecret,
-                tmp_auth_code = code
-            }, System.Net.Http.HttpMethod.Post));
-            var rlt = new ApiResult<Models.AuthInfo> { message = res.message };
-            if (res.success && res.data != null)
-            {
-                if (res.data.errcode != 0)
-                {
-                    rlt.code = res.data.errcode.ToString();
-                    rlt.message = res.data.errmsg;
-                }
-                else if (res.data != null)
-                {
-                    rlt.data = res.data.user_info;
-                    rlt.success = true;
-                }
-            }
-            return rlt;
-        }
-        #endregion
-
-        #region GetUser 获取用户详情
-        /// <summary>
-        /// 获取用户详情
-        /// </summary>
-        /// <param name="userid">用户id</param>
-        /// <param name="lang"></param>
+        /// <param name="ctx"></param>
         /// <returns></returns>
-        public ApiResult<Models.User> GetUser(String userid, String lang = "")
+        public Task<ApiResult<TResponse>> HandleAsync<TResponse>(Context ctx)
+            where TResponse : Wlniao.Handler.IResponse
         {
-            var res = GetResponseFromAsyncTask(CallAsync<GetUserRequest, GetUserResponse>("get_user", new GetUserRequest()
+            var result = new ApiResult<TResponse> { node = XCore.WebNode, code = "-1", success = false, message = "unkown error" };
+            if (string.IsNullOrEmpty(ctx.ApiHost))
             {
-                userid = userid,
-                lang = lang,
-                access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken(),
-            }));
-            var rlt = new ApiResult<Models.User> { message = res.message };
-            if (res.success && res.data != null)
-            {
-                if (res.data.errcode != 0)
-                {
-                    rlt.code = res.data.errcode.ToString();
-                    rlt.message = res.data.errmsg;
-                }
-                else if (res.data != null)
-                {
-                    rlt.data = new Models.User
-                    {
-                        userid = res.data.userid,
-                        unionid = res.data.unionid,
-                        name = res.data.name,
-                        mobile = res.data.mobile,
-                        avatar = res.data.avatar,
-                        position = res.data.position,
-                        jobnumber = res.data.jobnumber,
-                        department = res.data.department,
-                        remark = res.data.remark,
-                        active = res.data.active,
-                    };
-                    rlt.success = true;
-                }
+                result.code = "400";
+                result.message = "request host not set";
             }
-            return rlt;
-        }
-        #endregion
-
-        //#region GetUserIdByMobile 根据手机号获取员工userid
-        ///// <根据手机号获取员工userid>
-        ///// 获取用户详情
-        ///// </summary>
-        ///// <param name="mobile">员工手机号</param>
-        ///// <returns></returns>
-        //public ApiResult<String> GetUserIdByMobile(String mobile)
-        //{
-        //    var res = GetResponseFromAsyncTask(CallAsync<GetUserIdByMobileRequest, GetUserIdByMobileResponse>("get_by_mobile", new GetUserIdByMobileRequest()
-        //    {
-        //        mobile = mobile,
-        //        access_token = string.IsNullOrEmpty(this.SuiteTicket) ? GetToken() : GetCorpToken(),
-        //    }));
-        //    var rlt = new ApiResult<String> { message = res.message };
-        //    if (res.success && res.data != null)
-        //    {
-        //        if (res.data.errcode != 0)
-        //        {
-        //            rlt.code = res.data.errcode.ToString();
-        //            rlt.message = res.data.errmsg;
-        //        }
-        //        else if (res.data != null && !string.IsNullOrEmpty(res.data.userid))
-        //        {
-        //            rlt.data = res.data.userid;
-        //            rlt.success = true;
-        //        }
-        //    }
-        //    return rlt;
-        //}
-        //#endregion 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="textParams"></param>
-        /// <param name="fileParams"></param>
-        /// <returns></returns>
-        public static byte[] DoPost(IDictionary<string, string> textParams, IDictionary<string, Models.FileItem> fileParams,out String contentType)
-        {
-            if (fileParams == null || fileParams.Count == 0)
+            else if (string.IsNullOrEmpty(ctx.ApiPath))
             {
-                contentType = "application/x-www-form-urlencoded;charset=utf-8";
-                var query = new System.Text.StringBuilder();
-                var hasParam = false;
-                foreach (KeyValuePair<string, string> kv in textParams)
-                {
-                    string name = kv.Key;
-                    string value = kv.Value;
-                    // 忽略参数名或参数值为空的参数
-                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(value))
-                    {
-                        if (hasParam)
-                        {
-                            query.Append("&");
-                        }
-
-                        query.Append(name);
-                        query.Append("=");
-                        query.Append(System.Web.HttpUtility.UrlEncode(value, Encoding.UTF8));
-                        hasParam = true;
-                    }
-                }
-
-                return Encoding.UTF8.GetBytes(query.ToString());
+                result.code = "400";
+                result.message = "request path not set";
+            }
+            else if (ctx.TokenRequired && string.IsNullOrEmpty(AccessToken))
+            {
+                result.code = "400";
+                result.message = "client access_token not set";
             }
             else
             {
-                var total = 0;
-                var maxlength = ((textParams == null || textParams.Count == 0) ? 0 : textParams.Values.Sum(a => a.Length))
-                    + (fileParams.Values.Sum(a => a.Bytes.Length) + textParams.Count * 50) + 1000;
-                var revBuffer = new byte[maxlength];
-                var reqStream = new System.IO.MemoryStream();
-                var boundary = DateTime.Now.Ticks.ToString("X"); // 随机分隔线
-                contentType = "multipart/form-data;charset=utf-8;boundary=" + boundary;
-
-                byte[] itemBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "\r\n");
-                byte[] endBoundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
-
-                if (textParams != null && textParams.Count > 0)
+                System.Net.Http.HttpClient http = null;
+                if (ctx.Certificate == null)
                 {
-                    // 组装文本请求参数
-                    string textTemplate = "Content-Disposition:form-data;name=\"{0}\"\r\nContent-Type:text/plain\r\n\r\n{1}";
-                    foreach (KeyValuePair<string, string> kv in textParams)
-                    {
-                        var itemBytes = Encoding.UTF8.GetBytes(string.Format(textTemplate, kv.Key, kv.Value));
-                        Buffer.BlockCopy(itemBoundaryBytes, 0, revBuffer, total, itemBoundaryBytes.Length);
-                        total += itemBoundaryBytes.Length;
-                        Buffer.BlockCopy(itemBytes, 0, revBuffer, total, itemBytes.Length);
-                        total += itemBytes.Length;
-                    }
+                    http = new System.Net.Http.HttpClient();
                 }
-
-                // 组装文件请求参数
-                string fileTemplate = "Content-Disposition:form-data;name=\"{0}\";filename=\"{1}\"\r\nContent-Type:{2}\r\n\r\n";
-                foreach (var kv in fileParams)
+                else
                 {
-                    var itemBytes = Encoding.UTF8.GetBytes(string.Format(fileTemplate, kv.Key, kv.Value.FileName, kv.Value.MimeType));
-
-                    Buffer.BlockCopy(itemBoundaryBytes, 0, revBuffer, total, itemBoundaryBytes.Length);
-                    total += itemBoundaryBytes.Length;
-                    Buffer.BlockCopy(itemBytes, 0, revBuffer, total, itemBytes.Length);
-                    total += itemBytes.Length;
-                    Buffer.BlockCopy(kv.Value.Bytes, 0, revBuffer, total, kv.Value.Bytes.Length);
-                    total += kv.Value.Bytes.Length;
+                    var handler = new System.Net.Http.HttpClientHandler();
+                    handler.ClientCertificateOptions = System.Net.Http.ClientCertificateOption.Manual;
+                    handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                    handler.ClientCertificates.Add(ctx.Certificate);
+                    http = new System.Net.Http.HttpClient(handler);
                 }
-                Buffer.BlockCopy(endBoundaryBytes, 0, revBuffer, total, endBoundaryBytes.Length);
-                total += endBoundaryBytes.Length;
-                return revBuffer.Take(total).ToArray();
+                http.BaseAddress = new System.Uri(ctx.ApiHost);
+                if (ctx.TokenRequired)
+                {
+                    ctx.ApiPath = ctx.ApiPath.Replace("ACCESS_TOKEN", AccessToken);
+                }
+                //Task<System.Net.Http.HttpResponseMessage> task = null;
+                //if (ctx.Method == "GET")
+                //{
+                //    var query = ctx.RequestBody as string;
+                //    if (!string.IsNullOrEmpty(query))
+                //    {
+                //        var link = ctx.ApiPath.IndexOf('?') < 0 ? '?' : '&';
+                //        ctx.ApiPath += query[0] == '?' || query[0] == '&' ? query : link + query;
+                //    }
+                //    task = http.GetAsync(ctx.ApiPath);
+                //}
+                //else
+                //{
+                //    var text = ctx.RequestBody as string;
+                //    var bytes = ctx.RequestBody as byte[];
+                //    if (bytes != null)
+                //    {
+                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.ByteArrayContent(bytes));
+                //    }
+                //    else if (!string.IsNullOrEmpty(text))
+                //    {
+                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.StringContent(text, ctx.Encoding, ctx.ContentType));
+                //    }
+                //    else if (ctx.RequestBody != null)
+                //    {
+                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.StringContent(Json.ToString(ctx.RequestBody), ctx.Encoding, ctx.ContentType));
+                //    }
+                //    else
+                //    {
+                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.ByteArrayContent(new byte[0]));
+                //    }
+                //}
+                //task.Result.Content.ReadAsStringAsync().ContinueWith((res) =>
+                //{
+                //    ctx.ResponseBody = res.Result;
+                //    ctx.HttpResponseHeaders = new Dictionary<String, String>();
+                //    try
+                //    {
+                //        result.code = "0";
+                //        result.data = Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(res.Result);
+                //        result.message = task.Result.ReasonPhrase;
+                //        foreach (var item in task.Result.Headers)
+                //        {
+                //            var em = item.Value.GetEnumerator();
+                //            if (em.MoveNext())
+                //            {
+                //                ctx.HttpResponseHeaders.Add(item.Key.ToLower(), em.Current);
+                //            }
+                //        }
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        result.code = "-1";
+                //        result.message = ex.Message;
+                //    }
+                //}).Wait();
+
+                try
+                {
+                    var res = ctx.Handle();
+                    res.Wait();
+                    result.code = "0";
+                    result.data = Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(res.Result);
+                }
+                catch (Exception ex)
+                {
+                    result.code = "-1";
+                    result.message = ex.Message;
+                }
+                if (result.code == "0")
+                {
+                    var data = result.data as BaseResponse;
+                    result.code = data?.errcode;
+                    result.message = data?.errmsg;
+                    ctx.CheckRespose(result);
+                }
             }
+            log.Topic("dingtalk", "\r\nRequest:+\r\n" + (ctx.RequestBody as string) + "\r\nResponse:+\r\n" + (ctx.ResponseBody as string));
+            return Task<ApiResult<TResponse>>.Run(() =>
+            {
+                return result;
+            });
         }
-
-
     }
 }

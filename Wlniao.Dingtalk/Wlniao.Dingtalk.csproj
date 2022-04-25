@@ -1,42 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Description>Dingtalk Extend for Wlniao.XCore</Description>
-    <Copyright>Copyright 2019 Wlniao</Copyright>
-    <VersionPrefix>1.6.5</VersionPrefix>
-    <Authors>Chaoyi Xie</Authors>
+	<PropertyGroup>
+		<Description>Dingtalk Extend for Wlniao.XCore</Description>
+		<Copyright>Copyright 2019 Wlniao</Copyright>
+		<VersionPrefix>1.6.5</VersionPrefix>
+		<Authors>Chaoyi Xie</Authors>
+		<AssemblyName>Wlniao.Dingtalk</AssemblyName>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RuntimeFrameworkVersion>3.1.0</RuntimeFrameworkVersion>
-    <TargetFrameworks>netstandard2.1;netcoreapp3.1</TargetFrameworks>
-    <AssemblyName>Wlniao.Dingtalk</AssemblyName>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard2.1' ">2.1.0</NetStandardImplicitPackageVersion>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">3.1.0</NetStandardImplicitPackageVersion>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <PackageId>Wlniao.Dingtalk</PackageId>
-    <Version>0.0.7</Version>
-    <RootNamespace>Wlniao.Dingtalk</RootNamespace>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
-    <PackageIconUrl>https://static.wlniao.com/wlniao/logo.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/wlniao/dingtalk</PackageProjectUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard2.1\Wlniao.Dingtalk.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard2.1\Wlniao.WeAPP.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp3.1\Wlniao.WeAPP.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-    <DocumentationFile>bin\Release\netcoreapp3.1\Wlniao.WeAPP.xml</DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Wlniao.XCore" Version="3.1.5" />
-  </ItemGroup>
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+		<PackageId>Wlniao.Dingtalk</PackageId>
+		<Version>0.0.9-beta</Version>
+		<RootNamespace>Wlniao.Dingtalk</RootNamespace>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicense>https://www.apache.org/licenses/LICENSE-2.0.html</PackageLicense>
+		<PackageIcon>wlniao.png</PackageIcon>
+		<PackageProjectUrl>https://github.com/wlniao/dingtalk</PackageProjectUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
+		<DocumentationFile>bin\Debug\netstandard2.1\Wlniao.Dingtalk.xml</DocumentationFile>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
+		<DocumentationFile>bin\Release\netstandard2.1\Wlniao.WeAPP.xml</DocumentationFile>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+		<DocumentationFile>bin\Debug\netcoreapp3.1\Wlniao.WeAPP.xml</DocumentationFile>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
+		<DocumentationFile>bin\Release\netcoreapp3.1\Wlniao.WeAPP.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Include="..\..\wlniao.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Wlniao.XCore" Version="3.1.22-beta6" />
+	</ItemGroup>
 
 </Project>
