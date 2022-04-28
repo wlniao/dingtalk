@@ -14,6 +14,7 @@ namespace Wlniao.Dingtalk.Department
         public GetDepartment(GetDepartmentRequest obj)
         {
             base.Method = "POST";
+            base.OldHost = true;
             base.ApiPath = "/topapi/v2/department/get?access_token=ACCESS_TOKEN";
             base.RequestBody = obj;
             base.TokenRequired = true;

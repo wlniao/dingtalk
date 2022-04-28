@@ -10,6 +10,10 @@ namespace Wlniao.Dingtalk
     public abstract class Context : Wlniao.Handler.Context
     {
         /// <summary>
+        /// 使用旧版接口
+        /// </summary>
+        public bool OldHost { get; set; }
+        /// <summary>
         /// 
         /// </summary>
         public Context(): base()   

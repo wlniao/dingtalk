@@ -11,6 +11,7 @@ namespace Wlniao.Dingtalk
     public class Client : Wlniao.Handler.IClient
     {
         #region 企业内部开发配置信息
+        internal static string _OldHost = null;     //API接口服务器
         internal static string _ApiHost = null;     //API接口服务器
         internal static string _CorpId = null;      //组织机构Id
         internal static string _AgentId = null;     //应用安装Id
@@ -21,13 +22,27 @@ namespace Wlniao.Dingtalk
         /// <summary>
         /// 开放平台接口前缀
         /// </summary>
+        public static string CfgApiHostOld
+        {
+            get
+            {
+                if (_OldHost == null)
+                {
+                    _OldHost = Config.GetSetting("DingHostOld", "https://oapi.dingtalk.com");
+                }
+                return _OldHost;
+            }
+        }
+        /// <summary>
+        /// 开放平台接口前缀
+        /// </summary>
         public static string CfgApiHost
         {
             get
             {
                 if (_ApiHost == null)
                 {
-                    _ApiHost = Config.GetSetting("DingHost", "https://oapi.dingtalk.com");
+                    _ApiHost = Config.GetSetting("DingHost", "https://api.dingtalk.com");
                 }
                 return _ApiHost;
             }
@@ -196,15 +211,15 @@ namespace Wlniao.Dingtalk
                 {
                     if (string.IsNullOrEmpty(CorpId))
                     {
-                        log.Topic("dingtalk", "\r\nCorpId not set, must add DingCorpId environment variable");
+                        log.Error("Dingtalk error: CorpId not set, must add DingCorpId environment variable");
                     }
                     else if (string.IsNullOrEmpty(AppKey))
                     {
-                        log.Topic("dingtalk", "\r\nAppKey not set, must add DingAppKey environment variable");
+                        log.Error("Dingtalk error: AppKey not set, must add DingAppKey environment variable");
                     }
                     else if (string.IsNullOrEmpty(AppSecret))
                     {
-                        log.Topic("dingtalk", "\r\nAppSecret not set, must add DingAppSecret environment variable");
+                        log.Error("Dingtalk error: AppSecret not set, must add DingAppSecret environment variable");
                     }
                     else
                     {
@@ -279,7 +294,7 @@ namespace Wlniao.Dingtalk
         {
             if (string.IsNullOrEmpty(ctx.ApiHost))
             {
-                ctx.ApiHost = CfgApiHost;
+                ctx.ApiHost = ctx.OldHost ? CfgApiHostOld : CfgApiHost;
             }
             var task = HandleAsync<TResponse>(ctx);
             task.Wait();
@@ -406,7 +421,7 @@ namespace Wlniao.Dingtalk
                     ctx.CheckRespose(result);
                 }
             }
-            log.Topic("dingtalk", "\r\nRequest:+\r\n" + (ctx.RequestBody as string) + "\r\nResponse:+\r\n" + (ctx.ResponseBody as string));
+            log.Info("Dingtalk\r\nrequest:\r\n" + (ctx.RequestBody as string) + "\r\nDingtalk response:\r\n" + (ctx.ResponseBody as string));
             return Task<ApiResult<TResponse>>.Run(() =>
             {
                 return result;

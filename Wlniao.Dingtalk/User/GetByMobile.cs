@@ -14,6 +14,7 @@ namespace Wlniao.Dingtalk.User
         public GetByMobile(GetByMobileRequest obj)
         {
             base.Method = "POST";
+            base.OldHost = true;
             base.ApiPath = "/topapi/v2/user/getbymobile?access_token=ACCESS_TOKEN";
             base.RequestBody = obj;
             base.TokenRequired = true;

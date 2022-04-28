@@ -14,7 +14,6 @@ namespace Wlniao.Dingtalk.Auth
         public CorpAccessToken(CorpAccessTokenRequest obj)
         {
             base.Method = "POST";
-            base.ApiHost = "https://api.dingtalk.com";
             base.ApiPath = "/v1.0/oauth2/corpAccessToken";
             base.RequestBody = obj;
         }
