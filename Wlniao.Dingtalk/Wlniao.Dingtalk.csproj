@@ -12,7 +12,7 @@
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
 		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
 		<PackageId>Wlniao.Dingtalk</PackageId>
-		<Version>0.0.9-beta</Version>
+		<Version>0.0.9</Version>
 		<RootNamespace>Wlniao.Dingtalk</RootNamespace>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicense>https://www.apache.org/licenses/LICENSE-2.0.html</PackageLicense>
@@ -40,7 +40,7 @@
 	  </None>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Wlniao.XCore" Version="3.1.23" />
+	  <PackageReference Include="Wlniao.XCore" Version="3.1.24" />
 	</ItemGroup>
 
 </Project>

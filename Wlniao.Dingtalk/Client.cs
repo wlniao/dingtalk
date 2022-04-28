@@ -344,6 +344,26 @@ namespace Wlniao.Dingtalk
                 {
                     ctx.ApiPath = ctx.ApiPath.Replace("ACCESS_TOKEN", AccessToken);
                 }
+
+                try
+                {
+                    var res = ctx.Handle();
+                    res.Wait();
+                    result.code = "0";
+                    result.data = Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(res.Result);
+                }
+                catch (Exception ex)
+                {
+                    result.code = "-1";
+                    result.message = ex.Message;
+                }
+                if (result.code == "0")
+                {
+                    var data = result.data as BaseResponse;
+                    result.code = data?.errcode;
+                    result.message = data?.errmsg;
+                    ctx.CheckRespose(result);
+                }
                 //Task<System.Net.Http.HttpResponseMessage> task = null;
                 //if (ctx.Method == "GET")
                 //{
@@ -400,26 +420,6 @@ namespace Wlniao.Dingtalk
                 //        result.message = ex.Message;
                 //    }
                 //}).Wait();
-
-                try
-                {
-                    var res = ctx.Handle();
-                    res.Wait();
-                    result.code = "0";
-                    result.data = Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(res.Result);
-                }
-                catch (Exception ex)
-                {
-                    result.code = "-1";
-                    result.message = ex.Message;
-                }
-                if (result.code == "0")
-                {
-                    var data = result.data as BaseResponse;
-                    result.code = data?.errcode;
-                    result.message = data?.errmsg;
-                    ctx.CheckRespose(result);
-                }
             }
             log.Info("Dingtalk\r\nrequest:\r\n" + (ctx.RequestBody as string) + "\r\nDingtalk response:\r\n" + (ctx.ResponseBody as string));
             return Task<ApiResult<TResponse>>.Run(() =>
