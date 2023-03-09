@@ -6,13 +6,12 @@
 		<VersionPrefix>1.6.5</VersionPrefix>
 		<Authors>Chaoyi Xie</Authors>
 		<AssemblyName>Wlniao.Dingtalk</AssemblyName>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
-    <RuntimeFrameworkVersion>3.1.0</RuntimeFrameworkVersion>
+    <TargetFramework>net6.0</TargetFramework>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
 		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
 		<PackageId>Wlniao.Dingtalk</PackageId>
-		<Version>0.0.9</Version>
+		<Version>0.2.0</Version>
 		<RootNamespace>Wlniao.Dingtalk</RootNamespace>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicense>https://www.apache.org/licenses/LICENSE-2.0.html</PackageLicense>
@@ -34,13 +33,18 @@
 		<DocumentationFile>bin\Release\netcoreapp3.1\Wlniao.WeAPP.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Old\**" />
+	  <EmbeddedResource Remove="Old\**" />
+	  <None Remove="Old\**" />
+	</ItemGroup>
+	<ItemGroup>
 	  <None Include="..\..\wlniao.png">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Wlniao.XCore" Version="3.1.24" />
+	  <PackageReference Include="Wlniao.XCore" Version="6.0.6" />
 	</ItemGroup>
 
 </Project>

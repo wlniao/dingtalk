@@ -192,7 +192,7 @@ namespace Wlniao.Dingtalk
                         }));
                         if (rlt.success)
                         {
-                            AccessToken = rlt.data.access_token;
+                            AccessToken = rlt.data.accessToken;
                         }
                     }
                 }
@@ -349,8 +349,8 @@ namespace Wlniao.Dingtalk
                 {
                     var res = ctx.Handle();
                     res.Wait();
-                    result.code = "0";
                     result.data = Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(res.Result);
+                    result.code = "0";
                 }
                 catch (Exception ex)
                 {
@@ -364,64 +364,15 @@ namespace Wlniao.Dingtalk
                     result.message = data?.errmsg;
                     ctx.CheckRespose(result);
                 }
-                //Task<System.Net.Http.HttpResponseMessage> task = null;
-                //if (ctx.Method == "GET")
-                //{
-                //    var query = ctx.RequestBody as string;
-                //    if (!string.IsNullOrEmpty(query))
-                //    {
-                //        var link = ctx.ApiPath.IndexOf('?') < 0 ? '?' : '&';
-                //        ctx.ApiPath += query[0] == '?' || query[0] == '&' ? query : link + query;
-                //    }
-                //    task = http.GetAsync(ctx.ApiPath);
-                //}
-                //else
-                //{
-                //    var text = ctx.RequestBody as string;
-                //    var bytes = ctx.RequestBody as byte[];
-                //    if (bytes != null)
-                //    {
-                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.ByteArrayContent(bytes));
-                //    }
-                //    else if (!string.IsNullOrEmpty(text))
-                //    {
-                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.StringContent(text, ctx.Encoding, ctx.ContentType));
-                //    }
-                //    else if (ctx.RequestBody != null)
-                //    {
-                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.StringContent(Json.ToString(ctx.RequestBody), ctx.Encoding, ctx.ContentType));
-                //    }
-                //    else
-                //    {
-                //        task = http.PostAsync(ctx.ApiPath, new System.Net.Http.ByteArrayContent(new byte[0]));
-                //    }
-                //}
-                //task.Result.Content.ReadAsStringAsync().ContinueWith((res) =>
-                //{
-                //    ctx.ResponseBody = res.Result;
-                //    ctx.HttpResponseHeaders = new Dictionary<String, String>();
-                //    try
-                //    {
-                //        result.code = "0";
-                //        result.data = Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(res.Result);
-                //        result.message = task.Result.ReasonPhrase;
-                //        foreach (var item in task.Result.Headers)
-                //        {
-                //            var em = item.Value.GetEnumerator();
-                //            if (em.MoveNext())
-                //            {
-                //                ctx.HttpResponseHeaders.Add(item.Key.ToLower(), em.Current);
-                //            }
-                //        }
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        result.code = "-1";
-                //        result.message = ex.Message;
-                //    }
-                //}).Wait();
             }
-            log.Info("Dingtalk\r\nrequest:\r\n" + (ctx.RequestBody as string) + "\r\nDingtalk response:\r\n" + (ctx.ResponseBody as string));
+            if (ctx.RequestBody is string)
+            {
+                log.Info("Dingtalk\r\nrequest:" + ctx.RequestBody + "\r\nresponse:" + (ctx.ResponseBody as string) + "\r\n");
+            }
+            else if (ctx.RequestBody is object)
+            {
+                log.Info("Dingtalk\r\nrequest:" + Wlniao.Json.ToString(ctx.RequestBody) + "\r\nresponse:" + (ctx.ResponseBody as string) + "\r\n");
+            }
             return Task<ApiResult<TResponse>>.Run(() =>
             {
                 return result;

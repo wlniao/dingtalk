@@ -13,7 +13,6 @@ namespace Wlniao.Dingtalk.Todo
         /// <param name="unionId">当前访问资源所归属用户的unionId，和创建者的unionId保持一致</param>
         /// <param name="taskId">待办ID</param>
         /// <param name="access_token"></param>
-        /// <param name="obj"></param>
         public DeleteTask(String unionId, String taskId, String access_token)
         {
             base.Method = "DELETE";
@@ -31,7 +30,6 @@ namespace Wlniao.Dingtalk.Todo
         /// <param name="taskId">待办ID</param>
         /// <param name="access_token"></param>
         /// <param name="operatorId"></param>
-        /// <param name="obj"></param>
         public DeleteTask(String unionId, String taskId, String access_token, String operatorId)
         {
             base.Method = "DELETE";

@@ -11,6 +11,7 @@ namespace Wlniao.Dingtalk.Todo
         /// 
         /// </summary>
         /// <param name="unionId">当前访问资源所归属用户的unionId，和创建者的unionId保持一致</param>
+        /// <param name="access_token"></param>
         /// <param name="obj"></param>
         public AddTask(String unionId, String access_token, AddTaskRequest obj)
         {
@@ -28,6 +29,7 @@ namespace Wlniao.Dingtalk.Todo
         /// 
         /// </summary>
         /// <param name="unionId"></param>
+        /// <param name="access_token"></param>
         /// <param name="operatorId"></param>
         /// <param name="obj"></param>
         public AddTask(String unionId, String access_token, String operatorId, AddTaskRequest obj)

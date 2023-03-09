@@ -258,47 +258,6 @@ namespace Wlniao.Dingtalk
             return tokens[key].info;
         }
 
-        #region GetToken 获取access_token
-        /// <summary>
-        /// 获取access_token
-        /// </summary>
-        public string GetToken(Boolean renew = false)
-        {
-            var key = "key" + AppKey + CorpId;
-            try
-            {
-                if (!tokens.ContainsKey(key))
-                {
-                    tokens.Add(key, new TokenCache());
-                }
-            }
-            catch { }
-            if (renew || tokens[key].past < DateTime.Now)
-            {
-                var rlt = GetResponseFromAsyncTask(CallAsync<Auth.AccessTokenRequest, Auth.AccessTokenResponse>("gettoken", new Auth.AccessTokenRequest()
-                {
-                    appKey = AppKey,
-                    appSecret = AppSecret
-                }, System.Net.Http.HttpMethod.Get));
-                if (rlt.success && rlt.data != null && rlt.data.errcode == "0" && !string.IsNullOrEmpty(rlt.data.access_token))
-                {
-                    tokens[key].code = "0";
-                    tokens[key].info = "";
-                    tokens[key].token = rlt.data.access_token;
-                    tokens[key].past = DateTime.Now.AddSeconds(3600);
-                }
-                else
-                {
-                    tokens[key].code = rlt.data.errcode;
-                    tokens[key].info = rlt.data.errmsg;
-                }
-#if DEBUG
-                Console.WriteLine("Dingtalk.GetToken:" + tokens[key].token);
-#endif
-            }
-            return tokens[key].token;
-        }
-        #endregion 
 
         #region GetCorpToken 获取access_token
         /// <summary>

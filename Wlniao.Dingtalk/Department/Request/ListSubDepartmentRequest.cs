@@ -3,12 +3,12 @@ using System.Collections.Generic;
 namespace Wlniao.Dingtalk.Department
 {
     /// <summary>
-    /// 获取部门详情 的请求参数
+    /// 获取部门列表 的请求参数
     /// </summary>
-    public class GetDepartmentRequest : Wlniao.Handler.IRequest
+    public class ListSubDepartmentRequest : Wlniao.Handler.IRequest
     {
         /// <summary>
-        /// 部门ID，根部门ID为1
+        /// 父部门ID，根部门ID为1
         /// </summary>
         public string dept_id { get; set; }
         /// <summary>

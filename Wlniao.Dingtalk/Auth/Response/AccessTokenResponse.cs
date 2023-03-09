@@ -10,10 +10,10 @@ namespace Wlniao.Dingtalk.Auth
         /// <summary>
         /// 获取到的凭证，最长为512字节
         /// </summary>
-        public string access_token { get; set; }
+        public string accessToken { get; set; }
         /// <summary>
         /// 凭证的有效时间（秒）
         /// </summary>
-        public int expires_in { get; set; }
+        public int expiresIn { get; set; }
     }
 }

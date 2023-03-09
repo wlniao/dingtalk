@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Wlniao.Dingtalk.Department
 {
     /// <summary>
-    /// 查询用户详情 的输出内容
+    /// 获取部门详情 的输出内容
     /// </summary>
     public class GetDepartmentResponse : BaseResponse
     {
