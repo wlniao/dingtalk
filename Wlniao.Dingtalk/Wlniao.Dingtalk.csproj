@@ -11,13 +11,14 @@
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
 		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
 		<PackageId>Wlniao.Dingtalk</PackageId>
-		<Version>0.2.0</Version>
+		<Version>0.2.1</Version>
 		<RootNamespace>Wlniao.Dingtalk</RootNamespace>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageLicense>https://www.apache.org/licenses/LICENSE-2.0.html</PackageLicense>
 		<PackageIcon>wlniao.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/wlniao/dingtalk</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageOutputPath>C:\Users\Administrator\OneDrive\Path\packages</PackageOutputPath>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
@@ -44,7 +45,10 @@
 	  </None>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Wlniao.XCore" Version="6.0.6" />
+	  <PackageReference Include="Wlniao.XCore" Version="7.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
 	</ItemGroup>
 
 </Project>
