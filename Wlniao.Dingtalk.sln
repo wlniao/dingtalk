@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34205.153
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wlniao.Dingtalk", "Wlniao.Dingtalk\Wlniao.Dingtalk.csproj", "{22225376-B8A8-458B-B248-A92BC7C17A95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wlniao.Dingtalk.Test", "Wlniao.Dingtalk.Test\Wlniao.Dingtalk.Test.csproj", "{4E723598-19EF-4B34-8CE4-BEFA0F18D3D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{22225376-B8A8-458B-B248-A92BC7C17A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22225376-B8A8-458B-B248-A92BC7C17A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22225376-B8A8-458B-B248-A92BC7C17A95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E723598-19EF-4B34-8CE4-BEFA0F18D3D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E723598-19EF-4B34-8CE4-BEFA0F18D3D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E723598-19EF-4B34-8CE4-BEFA0F18D3D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E723598-19EF-4B34-8CE4-BEFA0F18D3D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

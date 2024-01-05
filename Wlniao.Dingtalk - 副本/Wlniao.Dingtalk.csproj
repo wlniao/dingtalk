@@ -6,7 +6,7 @@
 		<VersionPrefix>1.6.5</VersionPrefix>
 		<Authors>Chaoyi Xie</Authors>
 		<AssemblyName>Wlniao.Dingtalk</AssemblyName>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
 		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -45,7 +45,7 @@
 	  </None>
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Wlniao.XCore" Version="8.0.6" />
+	  <PackageReference Include="Wlniao.XCore" Version="7.0.1" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Properties\" />
