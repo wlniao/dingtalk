@@ -75,10 +75,6 @@ namespace Wlniao.Dingtalk
                     }
                 }
             }
-            if (string.IsNullOrEmpty(this.Webroxy))
-            {
-                this.Webroxy = Settings.Webroxy;
-            }
         }
         /// <summary>
         /// 
@@ -87,10 +83,6 @@ namespace Wlniao.Dingtalk
         {
             this.AccessToken = accessToken;
             this.AccessTokenHeaderName = accessTokenHeaderName;
-            if (string.IsNullOrEmpty(this.Webroxy))
-            {
-                this.Webroxy = Settings.Webroxy;
-            }
         }
         /// <summary>
         /// 
@@ -160,6 +152,10 @@ namespace Wlniao.Dingtalk
                         request.Method = System.Net.Http.HttpMethod.Post;
                         request.Content = new System.Net.Http.StreamContent(cvt.ToStream(System.Text.Encoding.UTF8.GetBytes(req)));
                         request.Content.Headers.Add("Content-Type", "application/json");
+                    }
+                    if (string.IsNullOrEmpty(this.Webroxy))
+                    {
+                        this.Webroxy = Settings.Webroxy;
                     }
                     if (!string.IsNullOrEmpty(Webroxy))
                     {
