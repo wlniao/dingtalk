@@ -27,6 +27,7 @@ namespace Wlniao.Dingtalk
             /// <param name="plaintext">传递的消息体明文</param>
             /// <param name="timestamp">时间戳</param>
             /// <returns></returns>
+            [Obsolete(DiagnosticId = "SYSLIB0022")]
             public static Dictionary<String, String> getEncryptedMap(String appid, String token, String aeskey, String plaintext, String timestamp = null)
             {
                 if (null == plaintext)
@@ -59,6 +60,7 @@ namespace Wlniao.Dingtalk
             /// <param name="encryptMsg">密文</param>
             /// <param name="msgSignature">签名串</param>
             /// <returns></returns>
+            [Obsolete(DiagnosticId = "SYSLIB0022")]
             public static String getDecryptMsg(String appid, String token, String aeskey, String nonce, String timeStamp, String encryptMsg, String msgSignature)
             {
                 //校验签名
@@ -79,6 +81,7 @@ namespace Wlniao.Dingtalk
             /// <param name="AppId"></param>
             /// <param name="Nonce"></param>
             /// <returns></returns>
+            [Obsolete(DiagnosticId = "SYSLIB0022")]
             public static String AES_encrypt(String Key, String Input, String AppId, String Nonce)
             {
                 try
@@ -129,6 +132,7 @@ namespace Wlniao.Dingtalk
             /// <param name="Input">需要解密的密文</param>
             /// <param name="AppId"></param>
             /// <returns></returns>
+            [Obsolete(DiagnosticId = "SYSLIB0022")]
             public static String AES_decrypt(String Key, String Input, String AppId)
             {
                 byte[] aesKey = System.Convert.FromBase64String(Key + "=");
