@@ -144,10 +144,7 @@ namespace Wlniao.Dingtalk
                         {
                             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) //Json序列化的时候对中文进行处理
                         });
-                        if (Wlniao.Log.Loger.LogLevel <= Wlniao.Log.LogLevel.Information)
-                        {
-                            log.Topic("Dingtalk", path + " request:" + req);
-                        }
+                        Wlniao.Log.Loger.Topic("Dingtalk", path + " request:" + req, Wlniao.Log.LogLevel.Information);
                         logs += "\n >>> " + req;
                         request.Method = System.Net.Http.HttpMethod.Post;
                         request.Content = new System.Net.Http.StreamContent(cvt.ToStream(System.Text.Encoding.UTF8.GetBytes(req)));
@@ -181,10 +178,7 @@ namespace Wlniao.Dingtalk
                                 else
                                 {
                                     logs += "\n <<< " + res;
-                                    if (Wlniao.Log.Loger.LogLevel <= Wlniao.Log.LogLevel.Information)
-                                    {
-                                        log.Topic("Dingtalk", path + " response:" + res);
-                                    }
+                                    Wlniao.Log.Loger.Topic("Dingtalk", path + " response:" + res, Wlniao.Log.LogLevel.Information);
                                     try
                                     {
                                         var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<String, Object>>(res, new System.Text.Json.JsonSerializerOptions { });
@@ -216,12 +210,9 @@ namespace Wlniao.Dingtalk
             catch (Exception ex)
             {
                 logs += "\n <<< " + ex.Message;
-                if (Wlniao.Log.Loger.LogLevel <= Wlniao.Log.LogLevel.Information)
-                {
-                    log.Topic("Dingtalk", path + " exception:" + ex.Message);
-                }
+                Wlniao.Log.Loger.Topic("Dingtalk", path + " exception:" + ex.Message, Wlniao.Log.LogLevel.Information);
             }
-            log.Debug("[Dingtalk][" + path + "][" + DateTime.Now.Subtract(start).TotalMilliseconds.ToString("F2") + "ms]" + logs);
+            Wlniao.Log.Loger.Debug("[Dingtalk][" + path + "][" + DateTime.Now.Subtract(start).TotalMilliseconds.ToString("F2") + "ms]" + logs);
             return result;
         }
 
