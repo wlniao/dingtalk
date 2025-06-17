@@ -6,7 +6,7 @@
 		<VersionPrefix>1.6.5</VersionPrefix>
 		<Authors>Chaoyi Xie</Authors>
 		<AssemblyName>Wlniao.Dingtalk</AssemblyName>
-    <TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
 		<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
 		<GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -18,22 +18,9 @@
 		<PackageIcon>wlniao.png</PackageIcon>
 		<PackageProjectUrl>https://github.com/wlniao/dingtalk</PackageProjectUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageOutputPath>C:\Users\Administrator\OneDrive\Path\packages</PackageOutputPath>
+		<PackageOutputPath>C:\Users\xcy7751\OneDrive\Path\packages</PackageOutputPath>
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.1|AnyCPU'">
-		<DocumentationFile>bin\Debug\netstandard2.1\Wlniao.Dingtalk.xml</DocumentationFile>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.1|AnyCPU'">
-		<DocumentationFile>bin\Release\netstandard2.1\Wlniao.WeAPP.xml</DocumentationFile>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
-		<DocumentationFile>bin\Debug\netcoreapp3.1\Wlniao.WeAPP.xml</DocumentationFile>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-		<DocumentationFile>bin\Release\netcoreapp3.1\Wlniao.WeAPP.xml</DocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="Old\**" />
