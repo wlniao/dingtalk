@@ -13,7 +13,6 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 using Wlniao;
-using Wlniao.Handler;
 
 namespace Wlniao.Dingtalk
 {
@@ -25,53 +24,56 @@ namespace Wlniao.Dingtalk
         /// <summary>
         /// API代理服务器地址
         /// </summary>
-        public String Webroxy { get; set; }
+        public string Webroxy { get; set; }
         /// <summary>
         /// API访问令牌
         /// </summary>
-        public String AccessToken { get; set; }
+        public string AccessToken { get; set; }
         /// <summary>
         /// API访问令牌Header参数名称
         /// </summary>
-        public String AccessTokenHeaderName { get; set; }
+        public string AccessTokenHeaderName { get; set; }
         /// <summary>
         /// 当前请求Headers信息
         /// </summary>
-        public Dictionary<String, String> Headers = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string> Headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// 当前线程的配置信息
         /// </summary>
-        public Dictionary<String, String> Configs = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, string> Configs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 
         /// <summary>
         /// 
         /// </summary>
-        public Context(Dictionary<String, String> cfgs = null)
+        public Context(Dictionary<string, string> cfgs = null)
         {
-            if (cfgs != null)
+            foreach (var item in cfgs ?? new Dictionary<string, string>())
             {
-                foreach (var item in cfgs)
+                switch (item.Key)
                 {
-                    if (item.Key == "Webroxy")
-                    {
+                    case "Webroxy":
                         this.Webroxy = item.Value;
-                    }
-                    else if (item.Key == "AccessToken")
-                    {
+                        break;
+                    case "AccessToken":
                         this.AccessToken = item.Value;
-                    }
-                    else if (item.Key == "AccessToken")
+                        break;
+                    default:
                     {
-                        this.AccessToken = item.Value;
-                    }
-                    else if (Configs.ContainsKey(item.Key))
-                    {
-                        Configs[item.Key] = item.Value;
-                    }
-                    else
-                    {
-                        Configs.TryAdd(item.Key, item.Value);
+                        if (item.Key == "AccessToken")
+                        {
+                            this.AccessToken = item.Value;
+                        }
+                        else if (Configs.ContainsKey(item.Key))
+                        {
+                            Configs[item.Key] = item.Value;
+                        }
+                        else
+                        {
+                            Configs.TryAdd(item.Key, item.Value);
+                        }
+
+                        break;
                     }
                 }
             }
@@ -79,7 +81,7 @@ namespace Wlniao.Dingtalk
         /// <summary>
         /// 
         /// </summary>
-        public Context(String accessToken, String accessTokenHeaderName = null)
+        public Context(string accessToken, string accessTokenHeaderName = null)
         {
             this.AccessToken = accessToken;
             this.AccessTokenHeaderName = accessTokenHeaderName;
@@ -100,7 +102,7 @@ namespace Wlniao.Dingtalk
             var start = DateTime.Now;
             var result = new ApiResult<T> { code = "", message = "未知错误" };
             var apiurl = (string.IsNullOrEmpty(Webroxy) ? host : Webroxy) + path;
-            var headers = new Dictionary<String, String>(StringComparer.OrdinalIgnoreCase);
+            var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             try
             {
                 if (accessToken > 0 && string.IsNullOrEmpty(this.AccessToken))
@@ -147,7 +149,7 @@ namespace Wlniao.Dingtalk
                         Wlniao.Log.Loger.Topic("Dingtalk", path + " request:" + req, Wlniao.Log.LogLevel.Information);
                         logs += "\n >>> " + req;
                         request.Method = System.Net.Http.HttpMethod.Post;
-                        request.Content = new System.Net.Http.StreamContent(cvt.ToStream(System.Text.Encoding.UTF8.GetBytes(req)));
+                        request.Content = new System.Net.Http.StreamContent(Wlniao.Convert.ToStream(System.Text.Encoding.UTF8.GetBytes(req)));
                         request.Content.Headers.Add("Content-Type", "application/json");
                     }
                     if (string.IsNullOrEmpty(this.Webroxy))
@@ -181,7 +183,7 @@ namespace Wlniao.Dingtalk
                                     Wlniao.Log.Loger.Topic("Dingtalk", path + " response:" + res, Wlniao.Log.LogLevel.Information);
                                     try
                                     {
-                                        var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<String, Object>>(res, new System.Text.Json.JsonSerializerOptions { });
+                                        var obj = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(res, new System.Text.Json.JsonSerializerOptions { });
                                         result.code = obj.GetString("code", obj.GetString("errcode"));
                                         result.message = obj.GetString("message", obj.GetString("errmsg"));
                                         if (string.IsNullOrEmpty(result.code) || result.code == "0")
@@ -221,15 +223,15 @@ namespace Wlniao.Dingtalk
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exceptions.ConfigException"></exception>
-        public ApiResult<Tuple<String, Int32>> GetAppToken()
+        public ApiResult<Tuple<string, int>> GetAppToken()
         {
             var path = "";
-            var data = new Dictionary<String, String>();
+            var data = new Dictionary<string, string>();
             var suiteKey = Configs.GetString("suiteKey");
             var suiteSecret = Configs.GetString("suiteSecret");
             var suiteTicket = Configs.GetString("suiteTicket");
             var authCorpId = Configs.GetString("authCorpId");
-            var result = new ApiResult<Tuple<String, Int32>>();
+            var result = new ApiResult<Tuple<string, int>>();
             if (string.IsNullOrEmpty(suiteKey) || string.IsNullOrEmpty(suiteSecret) || string.IsNullOrEmpty(suiteTicket) || string.IsNullOrEmpty(authCorpId))
             {
                 //走内部应用流程
@@ -260,13 +262,13 @@ namespace Wlniao.Dingtalk
             }
             if (!string.IsNullOrEmpty(path))
             {
-                var res = Request<Dictionary<String, Object>>(Settings.DingtalkApi, path, data, 0);
+                var res = Request<Dictionary<string, object>>(Settings.DingtalkApi, path, data, 0);
                 var accessToken = res.code != "0" ? "" : res.data.GetString("accessToken");
                 var expireIn = string.IsNullOrEmpty(accessToken) ? 0 : res.data.GetInt32("expireIn");
                 if (expireIn > 0)
                 {
                     this.AccessToken = accessToken;
-                    result.data = new Tuple<String, Int32>(accessToken, expireIn);
+                    result.data = new Tuple<string, int>(accessToken, expireIn);
                     result.message = "AccessToken获取成功";
                     result.success = true;
                 }

@@ -43,9 +43,9 @@ namespace Wlniao.Dingtalk.User
         /// <param name="ctx"></param>
         /// <param name="code"></param>
         /// <returns></returns>
-        public static ApiResult<UserInfo> GetByCode(Context ctx, String code)
+        public static ApiResult<UserInfo> GetByCode(Context ctx, string code)
         {
-            var response = ctx.Request<Dictionary<String, Object>>(Settings.DingtalkOApi, "/topapi/v2/user/getuserinfo", new { code }, 1);
+            var response = ctx.Request<Dictionary<string, object>>(Settings.DingtalkOApi, "/topapi/v2/user/getuserinfo", new { code }, 1);
             var result = new ApiResult<UserInfo> { code = response.code, message = response.message };
             if (response.success)
             {

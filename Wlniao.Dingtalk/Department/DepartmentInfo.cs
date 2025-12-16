@@ -42,9 +42,9 @@ namespace Wlniao.Dingtalk.Department
         /// <param name="dept_id"></param>
         /// <param name="language"></param>
         /// <returns></returns>
-        public static ApiResult<DepartmentInfo> Get(Context ctx, String dept_id, String language = "zh_CN")
+        public static ApiResult<DepartmentInfo> Get(Context ctx, string dept_id, string language = "zh_CN")
         {
-            var response = ctx.Request<Dictionary<String, Object>>(Settings.DingtalkOApi, "/topapi/v2/department/get", new { dept_id, language }, 1);
+            var response = ctx.Request<Dictionary<string, object>>(Settings.DingtalkOApi, "/topapi/v2/department/get", new { dept_id, language }, 1);
             var result = new ApiResult<DepartmentInfo> { code = response.code, message = response.message };
             if (response.success)
             {
@@ -68,9 +68,9 @@ namespace Wlniao.Dingtalk.Department
         /// <param name="dept_id"></param>
         /// <param name="language"></param>
         /// <returns></returns>
-        public static ApiResult<List<DepartmentInfo>> ListSub(Context ctx, String dept_id = "1", String language = "zh_CN")
+        public static ApiResult<List<DepartmentInfo>> ListSub(Context ctx, string dept_id = "1", string language = "zh_CN")
         {
-            var response = ctx.Request<List<Dictionary<String, Object>>>(Settings.DingtalkOApi, "/topapi/v2/department/listsub", new { dept_id, language }, 1);
+            var response = ctx.Request<List<Dictionary<string, object>>>(Settings.DingtalkOApi, "/topapi/v2/department/listsub", new { dept_id, language }, 1);
             var result = new ApiResult<List<DepartmentInfo>> { code = response.code, message = response.message, data = new List<DepartmentInfo>() };
             if (response.success)
             {

@@ -11,7 +11,7 @@
         <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
         <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
         <PackageId>Wlniao.Dingtalk</PackageId>
-        <Version>0.2.1</Version>
+        <Version>0.2.2</Version>
         <RootNamespace>Wlniao.Dingtalk</RootNamespace>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicense>https://www.apache.org/licenses/LICENSE-2.0.html</PackageLicense>
@@ -23,7 +23,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Wlniao.XCore" Version="8.0.49" />
+        <PackageReference Include="Wlniao.XCore" Version="8.0.64" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Properties\" />

@@ -28,7 +28,7 @@ namespace Wlniao.Dingtalk
             /// <param name="timestamp">时间戳</param>
             /// <returns></returns>
             [Obsolete(DiagnosticId = "SYSLIB0022")]
-            public static Dictionary<String, String> getEncryptedMap(String appid, String token, String aeskey, String plaintext, String timestamp = null)
+            public static Dictionary<string, string> getEncryptedMap(string appid, string token, string aeskey, string plaintext, string timestamp = null)
             {
                 if (null == plaintext)
                 {
@@ -38,14 +38,16 @@ namespace Wlniao.Dingtalk
                 {
                     timestamp = DateTime.Now.Millisecond.ToString();
                 }
-                var nonce = Wlniao.strUtil.CreateRndStrE(16);
+                var nonce = Wlniao.Text.StringUtil.CreateRndStrE(16);
                 var encrypt = AES_encrypt(aeskey, plaintext, appid, nonce);
                 var signature = getSignature(token, timestamp, nonce, encrypt);
-                var resultMap = new Dictionary<String, String>();
-                resultMap["msg_signature"] = signature;
-                resultMap["timeStamp"] = timestamp;
-                resultMap["encrypt"] = encrypt;
-                resultMap["nonce"] = nonce;
+                var resultMap = new Dictionary<string, string>
+                {
+                    ["msg_signature"] = signature,
+                    ["timeStamp"] = timestamp,
+                    ["encrypt"] = encrypt,
+                    ["nonce"] = nonce
+                };
                 return resultMap;
             }
 
@@ -61,10 +63,10 @@ namespace Wlniao.Dingtalk
             /// <param name="msgSignature">签名串</param>
             /// <returns></returns>
             [Obsolete(DiagnosticId = "SYSLIB0022")]
-            public static String getDecryptMsg(String appid, String token, String aeskey, String nonce, String timeStamp, String encryptMsg, String msgSignature)
+            public static string getDecryptMsg(string appid, string token, string aeskey, string nonce, string timeStamp, string encryptMsg, string msgSignature)
             {
                 //校验签名
-                String signature = getSignature(token, timeStamp, nonce, encryptMsg);
+                string signature = getSignature(token, timeStamp, nonce, encryptMsg);
                 if (!signature.Equals(msgSignature))
                 {
                     throw new DingTalkEncryptException(DingTalkEncryptException.COMPUTE_SIGNATURE_ERROR);
@@ -82,7 +84,7 @@ namespace Wlniao.Dingtalk
             /// <param name="Nonce"></param>
             /// <returns></returns>
             [Obsolete(DiagnosticId = "SYSLIB0022")]
-            public static String AES_encrypt(String Key, String Input, String AppId, String Nonce)
+            public static string AES_encrypt(string Key, string Input, string AppId, string Nonce)
             {
                 try
                 {
@@ -133,7 +135,7 @@ namespace Wlniao.Dingtalk
             /// <param name="AppId"></param>
             /// <returns></returns>
             [Obsolete(DiagnosticId = "SYSLIB0022")]
-            public static String AES_decrypt(String Key, String Input, String AppId)
+            public static string AES_decrypt(string Key, string Input, string AppId)
             {
                 byte[] aesKey = System.Convert.FromBase64String(Key + "=");
                 byte[] toEncryptArray = System.Convert.FromBase64String(Input);
@@ -178,13 +180,13 @@ namespace Wlniao.Dingtalk
             /// <param name="nonce">随机串</param>
             /// <param name="encrypt">加密文本</param>
             /// <returns></returns>
-            public static String getSignature(String token, String timestamp, String nonce, String encrypt)
+            public static string getSignature(string token, string timestamp, string nonce, string encrypt)
             {
                 try
                 {
                     Console.Out.WriteLine(encrypt);
 
-                    String[] array = new String[] { token, timestamp, nonce, encrypt };
+                    string[] array = new string[] { token, timestamp, nonce, encrypt };
                     Array.Sort(array, StringComparer.Ordinal);
                     //var tmparray = array.ToList();
                     //tmparray.Sort(new JavaStringComper());
@@ -195,7 +197,7 @@ namespace Wlniao.Dingtalk
                     {
                         sb.Append(array[i]);
                     }
-                    String str = sb.ToString();
+                    string str = sb.ToString();
                     Console.Out.WriteLine(str);
                     //MessageDigest md = MessageDigest.getInstance("SHA-1");
                     //md.update(str.getBytes());
@@ -205,7 +207,7 @@ namespace Wlniao.Dingtalk
                     byte[] combined = encoder.GetBytes(str);
                     byte[] digest = hash.ComputeHash(combined);
                     StringBuilder hexstr = new StringBuilder();
-                    String shaHex = "";
+                    string shaHex = "";
                     for (int i = 0; i < digest.Length; i++)
                     {
                         shaHex = ((int)digest[i]).ToString("x");// Integer.toHexString(digest[i] & 0xFF);
@@ -253,7 +255,7 @@ namespace Wlniao.Dingtalk
             /**计算解密文字corpid不匹配**/
             public readonly static int COMPUTE_DECRYPT_TEXT_CORPID_ERROR = 900010;
 
-            private static Dictionary<int, String> msgMap = new Dictionary<int, String>();
+            private static Dictionary<int, string> msgMap = new Dictionary<int, string>();
             static DingTalkEncryptException()
             {
                 msgMap[SUCCESS] = "成功";
@@ -301,7 +303,7 @@ namespace Wlniao.Dingtalk
                     amountToPad = BLOCK_SIZE;
                 }
                 char padChr = chr(amountToPad);
-                String tmp = string.Empty; ;
+                string tmp = string.Empty; ;
                 for (int index = 0; index < amountToPad; index++)
                 {
                     tmp += padChr;
@@ -346,9 +348,9 @@ namespace Wlniao.Dingtalk
             /// </summary>
             /// <param name="count"></param>
             /// <returns></returns>
-            public static String getRandomStr(int count)
+            public static string getRandomStr(int count)
             {
-                String baset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                string baset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                 Random random = new Random();
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < count; i++)
@@ -402,7 +404,7 @@ namespace Wlniao.Dingtalk
             /// <returns></returns>
             public int Compare(string x, string y)
             {
-                return String.Compare(x, y);
+                return string.Compare(x, y);
             }
         }
     }
